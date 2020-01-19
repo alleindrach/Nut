@@ -53,6 +53,7 @@ int TableSetBase::save(Database *db, bool cleanUp)
         masterModel = db->model().tableByClassName(data->table->metaObject()->className());
 
     foreach (Row<Table> t, data->childs) {
+
         if(data->table)
             t->setParentTable(data->table,
                               masterModel,

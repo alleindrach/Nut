@@ -7,6 +7,9 @@ CONFIG   += warn_on c++11
 
 include(../common/nut-lib.pri)
 
+
+DEFINES += Q_OS_OSX
+
 SOURCES += \
     ../common/comment.cpp \
     ../common/post.cpp \
@@ -25,3 +28,4 @@ HEADERS += \
     tst_basic.h
 
 include($$PWD/../../ci-test-init.pri)
+

@@ -1,8 +1,9 @@
 win32 {
-        CONFIG(debug,debug|release):   LIBDIR = $$absolute_path($$OUT_PWD/../../src/debug)
-        CONFIG(release,debug|release): LIBDIR = $$absolute_path($$OUT_PWD/../../src/release)
+        CONFIG(debug,debug|release):   LIBDIR = $$PWD/../../lib/debug
+        CONFIG(release,debug|release): LIBDIR = $$PWD/../../lib/release
 } else {
-        LIBDIR = $$absolute_path($$OUT_PWD/../../src)
+        CONFIG(debug,debug|release):   LIBDIR = $$PWD/../../lib/debug
+        CONFIG(release,debug|release): LIBDIR = $$PWD/../../lib/release
 }
 
 LIBS += -L$$LIBDIR -lnut

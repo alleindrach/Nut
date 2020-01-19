@@ -132,6 +132,7 @@ Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(Row<T> t)
     t->setParentTableSet(this);
     if(t->status() != Table::FeatchedFromDB)
         t->setStatus(Table::Added);
+    qDebug()<<" append "<<t->status();
 }
 
 template<class T>

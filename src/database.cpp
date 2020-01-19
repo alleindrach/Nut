@@ -606,7 +606,10 @@ int Database::saveChanges(bool cleanUp)
 
     int rowsAffected = 0;
     foreach (TableSetBase *ts, d->tableSets)
+    {
         rowsAffected += ts->save(this, cleanUp);
+        qDebug()<<"saveing:"<<ts->childClassName()<<" of "<<  rowsAffected <<"  rows";
+    }
     return rowsAffected;
 }
 

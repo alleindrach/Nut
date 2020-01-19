@@ -18,6 +18,12 @@
 #define HOST QString()
 #define USERNAME QString()
 #define PASSWORD QString()
+#elif defined(Q_OS_OSX)
+#define DRIVER "QSQLITE"
+#define DATABASE QStringLiteral("/tmp/testdb.sqlite")
+#define HOST QString()
+#define USERNAME QString()
+#define PASSWORD QString()
 #else
 #define DRIVER "QODBC"
 #define DATABASE QString("DRIVER={SQL Server};Server=.;Database=%1;Uid=sa;Port=1433;Pwd=qwe123!@#;WSID=.") \
