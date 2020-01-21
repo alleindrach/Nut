@@ -110,6 +110,10 @@ void Table::setModel(TableModel *model)
     d->model = model;
 }
 
+TableModel * Table::model()  const{
+    return d->model;
+}
+
 void Table::clear()
 {
     //Q_D(Table);

@@ -31,6 +31,7 @@
 NUT_BEGIN_NAMESPACE
 
 class Table;
+class TableModel;
 class Database;
 class TableSetBaseData;
 class TableSetBase : public QObject
@@ -57,7 +58,7 @@ public://TODO: change this to private
 
     void add(Row<Table> t);
     void remove(Row<Table> t);
-
+    TableModel * model() const;
     friend class Table;
     friend class QueryBase;
 };

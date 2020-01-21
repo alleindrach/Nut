@@ -46,6 +46,22 @@
 #define __nut_REMOVE            "remove"
 #define __nut_CHANGE            "change"
 
+#define __nut_CATALOG           "catalog"
+#define __nut_LIBREF_NAME    "ref_name"
+#define __nut_LIBREF_TABLE_NAME    "ref_table_name"
+#define __nut_LIBREF_TABLE_FIELD_NAME "ref_table_field_name"
+#define __nut_LIBREF_CATALOG       "ref_catalog"
+#define __nut_LIBREF_CATALOG_INDEX "ref_catalog_index"
+
+#define __nut_CAL_EXPRESSION    "cal_expression"
+#define __nut_INPUT_TYPE        "input_type"
+#define __nut_DATE_SPAN_INDEX   "input_date_span_index"
+#define __nut_DATE_SPAN_POS     "input_date_span_pos"
+#define __nut_INPUT_OPTIONS     "input_options"
+
+#define __LIBREF_KEYS          "libref_keys"
+#define __nut_LIBREF_KEY             "libref_key"
+#define __nut_LIBREF_FIELDS             "libref_fields"
 #ifdef NUT_NAMESPACE
 #   define NUT_BEGIN_NAMESPACE      namespace NUT_NAMESPACE{
 #   define NUT_END_NAMESPACE        }

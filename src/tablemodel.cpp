@@ -27,7 +27,7 @@
 
 #include "tablemodel.h"
 #include "defines.h"
-
+#include "table.h"
 NUT_BEGIN_NAMESPACE
 
 QString TableModel::name() const
@@ -77,14 +77,32 @@ FieldModel *TableModel::field(const QString &name) const
     return nullptr;
 }
 
+
 QList<FieldModel *> TableModel::fields() const
 {
     return _fields;
 }
 
+QList<FieldModel *> TableModel::fieldsByCat(QString cat) const
+{
+    QList<FieldModel * > catFields;
+    foreach(FieldModel * field,_fields){
+        if(field->catalog==cat){
+            catFields.append(field);
+        }
+    }
+    std::sort(catFields.begin(),catFields.end());
+    return catFields;
+}
+
+
 QList<RelationModel *> TableModel::foreignKeys() const
 {
     return _foreignKeys;
+}
+
+QList<LibraryModel *> TableModel::libraryRefs() const{
+    return _libraryRefs;
 }
 
 QStringList TableModel::fieldsNames() const
@@ -214,6 +232,70 @@ TableModel::TableModel(int typeId, const QString &tableName)
         else if (type == __nut_PRIMARY_KEY_AI) {
             f->isPrimaryKey = true;
             f->isAutoIncrement = true;
+//        }else if(type == __nut_REF_CATALOG_INDEX){
+//            f->catIndex=value.toInt();
+        }else if(type == __nut_CATALOG){
+            f->catalog=value;
+            QList<FieldModel*> catList=_catFields.value(value);
+            catList.insert(f->catIndex,f);
+            _catFields.insert(value,catList);
+        }else if(type == __nut_CAL_EXPRESSION){
+            f->calExpress=value;
+        }else if(type == __nut_INPUT_TYPE){
+            QMetaEnum metaEnum = QMetaEnum::fromType<Table::INPUT_TYPE>();
+            f->inputType=metaEnum.keyToValue(value.toLatin1().data());
+        }else if(type == __nut_DATE_SPAN_INDEX){
+            f->inputDateSpanIndex=value.toInt();
+        }else if(type == __nut_DATE_SPAN_POS){
+            f->inputDateSpanPos=value.toInt();
+        }else if(type == __nut_INPUT_OPTIONS){
+            // [{"display":"a","value":1},{"display":"b","value":2}]
+            QJsonValue json=QJsonValue(value);
+            QJsonArray jsonInputOptions=json.toArray();
+            foreach(QVariant var, jsonInputOptions.toVariantList()){
+                QJsonObject opt=var.toJsonObject();
+                QString k=opt.take("display").toString();
+                QVariant v=opt.take("value");
+                f->inputOptions.append(InputOption(k,v));
+            }
+        }else if(type==__nut_LIBREF_NAME){
+            LibraryModel * libRef=nullptr;
+            foreach(LibraryModel * lib,_libraryRefs){
+                if(lib->librefName()==value){
+                    libRef=lib;
+                    break;
+                }
+            }
+            if(!libRef){
+                LibraryModel * libmodelRef=new LibraryModel();
+                libmodelRef->setLibrefName(value);
+                libRef=libmodelRef;
+                _libraryRefs.append(libmodelRef);
+            }
+            f->libref=libRef;
+        }else if(type==__nut_LIBREF_TABLE_NAME)
+        {
+            if(f->libref->masterClassName().isEmpty())
+                f->libref->setMasterClassName(value);
+        }else if(type==__nut_LIBREF_TABLE_FIELD_NAME)
+        {
+            LibraryModel * ref=f->libref;
+            QStringList list=ref->refColumns();
+            list.append(value);
+            ref->setRefColumns(list);
+
+            list=ref->localColumns();
+            list.append(f->name);
+            ref->setLocalColumns(list);
+
+            list=ref->localProperties();
+            list.append(f->name);
+            ref->setLocalProperties(list);
+        }
+        else if(type == __nut_LIBREF_KEY){
+            QJsonObject jso=QJsonObject(QJsonValue(value).toObject());
+            LibraryModel* libmodelRef=new LibraryModel(jso);
+            this->_libraryRefs.append(libmodelRef);
         }
     }
 }
@@ -231,15 +313,34 @@ TableModel::TableModel(int typeId, const QString &tableName)
                 "type": "int"
             }
         },
-        "primary_key": "id"
+        "primary_key": "id",
+        "libref_keys":{
+            "postlibref":{
+                "name":"postlibref",
+                "localColumns":["post_user_name","post_date"],
+                "localProperties":["postUserName","postDate"],
+                "masterClassName":"Post"
+                "refColumns":["user_name","date"]
+            }
+        },
+        "lforeign_keys":{
+            "postid":{
+                "localColumn":"postid",
+                "localProperty":"postid",
+                "masterClassName": "Post",
+                "foreignColumn":"id"
+            }
+        }
     },
 */
+
 TableModel::TableModel(const QJsonObject &json, const QString &tableName) : _typeId(0)
 {
     _name = tableName;
 
     QJsonObject fields = json.value(__FIELDS).toObject();
     QJsonObject relations = json.value(__FOREIGN_KEYS).toObject();
+    QJsonObject libRefs = json.value(__LIBREF_KEYS).toObject();
     foreach (QString key, fields.keys()) {
         QJsonObject fieldObject = fields.value(key).toObject();
         //TODO: use FieldModel(QJsonObject) ctor
@@ -260,8 +361,12 @@ TableModel::TableModel(const QJsonObject &json, const QString &tableName) : _typ
     }
 
     foreach (QString key, relations.keys()) {
-        QJsonObject relObject = fields.value(key).toObject();
+        QJsonObject relObject = relations.value(key).toObject();
         _foreignKeys.append(new RelationModel(relObject));
+    }
+    foreach (QString key, libRefs.keys()) {
+        QJsonObject relObject = libRefs.value(key).toObject();
+        _libraryRefs.append(new LibraryModel(relObject));
     }
 }
 
@@ -269,6 +374,9 @@ TableModel::~TableModel()
 {
     qDeleteAll(_fields);
     qDeleteAll(_foreignKeys);
+    qDeleteAll(_libraryRefs);
+
+//    qDeleteAll(_catFields);
 }
 
 QJsonObject TableModel::toJson() const
@@ -276,7 +384,7 @@ QJsonObject TableModel::toJson() const
     QJsonObject obj;
     QJsonObject fieldsObj;
     QJsonObject foreignKeysObj;
-
+    QJsonObject librefKeysObj;
     foreach (FieldModel *f, _fields) {
         QJsonObject fieldObj;
         fieldObj.insert(__NAME, f->name);
@@ -301,9 +409,13 @@ QJsonObject TableModel::toJson() const
     }
     foreach (RelationModel *rel, _foreignKeys)
         foreignKeysObj.insert(rel->localColumn, rel->toJson());
-
+    foreach (LibraryModel * lml,_libraryRefs)
+    {
+        librefKeysObj.insert(lml->librefName(),lml->toJson());
+    }
     obj.insert(__FIELDS, fieldsObj);
     obj.insert(__FOREIGN_KEYS, foreignKeysObj);
+    obj.insert(__LIBREF_KEYS,librefKeysObj);
 
     return obj;
 }
@@ -323,6 +435,37 @@ RelationModel *TableModel::foreignKeyByField(const QString &fieldName) const
         if(fk->localColumn == fieldName)
             return fk;
 
+    return nullptr;
+}
+
+LibraryModel * TableModel::libraryRef(const QString &otherTable) const
+{
+    foreach (LibraryModel *lm, _libraryRefs)
+        if(lm->masterClassName() == otherTable)
+            return lm;
+
+    return nullptr;
+}
+LibraryModel *TableModel::libraryRefByName(const QString &librefName) const{
+    foreach (LibraryModel *lm, _libraryRefs)
+    {
+        if(lm->librefName()==librefName){
+            return lm;
+        }
+    }
+    return nullptr;
+}
+LibraryModel *TableModel::libraryRefByField(const QStringList &refFieldNames) const
+{
+    foreach (LibraryModel *lm, _libraryRefs)
+    {
+        QString key=lm->localColumnsKey();
+        QStringList tmpRefFieldNames=refFieldNames;
+        tmpRefFieldNames.sort();
+        QString keyRef=tmpRefFieldNames.join("_");
+        if(keyRef == key)
+            return lm;
+    }
     return nullptr;
 }
 
@@ -363,6 +506,19 @@ FieldModel::FieldModel(const QJsonObject &json)
     isPrimaryKey = json.value(__nut_PRIMARY_KEY).toBool();
     defaultValue = json.value(__nut_DEFAULT_VALUE).toString();
     isUnique = json.value(__nut_UNIQUE).toBool();
+    catalog=json.value(__nut_CATALOG).toString();
+
+    calExpress=json.value(__nut_CAL_EXPRESSION).toString();
+    inputType=json.value(__nut_INPUT_TYPE).toInt();
+    inputDateSpanIndex=json.value(__nut_DATE_SPAN_INDEX).toInt();
+    inputDateSpanPos=json.value(__nut_DATE_SPAN_POS).toInt();
+    calExpress=json.value(__nut_CAL_EXPRESSION).toString();
+    QJsonArray jsoArray=json.value(__nut_INPUT_OPTIONS).toArray();
+    foreach(QVariant v,jsoArray.toVariantList()){
+        QJsonObject jio=(QJsonValue::fromVariant(v)).toObject();
+        InputOption io=InputOption::fromJson(jio);
+        this->inputOptions.append(io);
+    }
 }
 
 QJsonObject FieldModel::toJson() const
@@ -375,6 +531,20 @@ QJsonObject FieldModel::toJson() const
     fieldObj.insert(__nut_AUTO_INCREMENT, isAutoIncrement);
     fieldObj.insert(__nut_PRIMARY_KEY, isPrimaryKey);
     fieldObj.insert(__nut_DEFAULT_VALUE, defaultValue);
+
+    fieldObj.insert(__nut_CATALOG,catalog);
+    fieldObj.insert(__nut_CAL_EXPRESSION,calExpress);
+    fieldObj.insert(__nut_INPUT_TYPE,inputType);
+    fieldObj.insert(__nut_DATE_SPAN_INDEX,this->inputDateSpanIndex);
+    fieldObj.insert(__nut_DATE_SPAN_INDEX,this->inputDateSpanPos);
+    {
+        QJsonArray jsoArray;
+        foreach(InputOption io,this->inputOptions){
+            jsoArray.append(io.toJson());
+        }
+        fieldObj.insert(__nut_INPUT_OPTIONS,jsoArray);
+    }
+
     return fieldObj;
 }
 
@@ -409,5 +579,6 @@ bool operator !=(const RelationModel &l, const RelationModel &r)
 {
     return !(l == r);
 }
+
 
 NUT_END_NAMESPACE

@@ -289,6 +289,9 @@ DatabaseModel DatabasePrivate::getLastScheema()
         QJsonObject json
             = QJsonDocument::fromJson(u->data().replace("\\\"", "\"").toUtf8(), &e).object();
 
+         qDebug()<<u->data().replace("\\\"", "\"");
+
+
         DatabaseModel ret = json;
         return ret;
         /*

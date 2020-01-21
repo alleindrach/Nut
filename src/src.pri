@@ -6,6 +6,7 @@ HEADERS += \
     $$PWD/generators/mysqlgenerator.h \
     $$PWD/generators/sqlitegenerator.h \
     $$PWD/generators/sqlservergenerator.h \
+    $$PWD/librarymodel.h \
     $$PWD/tablesetbasedata.h \
     $$PWD/types/dbgeography.h \
     $$PWD/tableset.h \
@@ -42,6 +43,7 @@ SOURCES += \
     $$PWD/generators/mysqlgenerator.cpp \
     $$PWD/generators/sqlitegenerator.cpp \
     $$PWD/generators/sqlservergenerator.cpp \
+    $$PWD/librarymodel.cpp \
     $$PWD/types/dbgeography.cpp \
     $$PWD/tableset.cpp \
     $$PWD/query.cpp \

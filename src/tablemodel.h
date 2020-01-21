@@ -24,12 +24,31 @@
 #include <QtCore/QVariant>
 #include <QDebug>
 #include "defines.h"
-
+#include "QJsonObject"
+#include "librarymodel.h"
 class QJsonObject;
 
 NUT_BEGIN_NAMESPACE
 
 class TableModel;
+struct InputOption{
+    QString displayName;
+    QVariant value;
+    explicit InputOption(QString d,QVariant v):displayName(d),value(v){
+
+    }
+    QJsonObject toJson() const{
+        QJsonObject jso;
+        jso.insert("display",this->displayName);
+        jso.insert("value",QJsonValue::fromVariant(this->value));
+        return jso;
+    }
+    static InputOption fromJson(QJsonObject jso)
+    {
+        return InputOption(jso.take("display").toString(),jso.take("value"));
+    }
+};
+
 struct FieldModel{
     explicit FieldModel() : name(QString()), defaultValue(QString())
     {
@@ -65,6 +84,16 @@ struct FieldModel{
     }
 
     QJsonObject toJson() const;
+//alleindrach
+    QString catalog;
+    int catIndex=0;
+    QString calExpress;
+    int inputType=0;
+    int inputDateSpanIndex=0;
+    int inputDateSpanPos=0;
+    QList<InputOption>  inputOptions;
+    LibraryModel * libref=nullptr;
+    QString refField;
 };
 
 struct RelationModel{
@@ -103,6 +132,9 @@ public:
     RelationModel *foreignKey(const QString &otherTable) const;
     RelationModel *foreignKeyByField(const QString &fieldName) const;
 
+    LibraryModel *libraryRef(const QString &otherTable) const;
+    LibraryModel *libraryRefByField(const QStringList &fieldNames) const;
+    LibraryModel *libraryRefByName(const QString &librefName) const;
     QString toString() const;
 
     QString primaryKey() const;
@@ -117,7 +149,9 @@ public:
     int typeId() const;
     void setTypeId(const int &typeId);
     QList<FieldModel *> fields() const;
+    QList<FieldModel *> fieldsByCat(QString cat) const;
     QList<RelationModel *> foreignKeys() const;
+    QList<LibraryModel *> libraryRefs() const;
     QStringList fieldsNames() const;
 
     bool operator ==(const TableModel &t) const;
@@ -129,6 +163,10 @@ private:
     int _typeId;
     QList<FieldModel*> _fields;
     QList<RelationModel*> _foreignKeys;
+    QList<LibraryModel*> _libraryRefs;
+
+    QMap<QString ,QList<FieldModel*>> _catFields;
+
 };
 
 NUT_END_NAMESPACE

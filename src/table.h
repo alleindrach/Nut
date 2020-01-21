@@ -68,7 +68,14 @@ public:
     QSet<QString> changedProperties() const;
 
     bool setParentTable(Table *master, TableModel *masterModel, TableModel *model);
+
+    TableModel * model() const;
+
+    enum INPUT_TYPE {NONE,TEXT,BOOLEAN,NUMBER,FLOAT,OPTIONS,DATE,TIME,DATETIME,DATE_SPAN,DATE_TIME_SPAN,TIME_SPAN,LIBRARY};
+    Q_ENUM(INPUT_TYPE)
+
 signals:
+
 
 public slots:
 

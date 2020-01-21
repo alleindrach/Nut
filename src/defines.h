@@ -82,6 +82,13 @@ public:                                                                        \
         propertyChanged(#name);                                                \
     }
 
+#define NUT_DECLARE_FIELD_EX(type, name, read, write,display,cat,inputtype)            \
+    NUT_DECLARE_FIELD(type, name, read, write)                                 \
+    NUT_INFO(__nut_CATALOG,name,cat)                                                \
+    NUT_INFO(__nut_INPUT_TYPE,name,inputtype)                               \
+    NUT_DISPLAY_NAME(name,display)
+
+
 #define NUT_FOREIGN_KEY(type, keytype, name, read, write)                     \
     Q_PROPERTY(Nut::Row<type> name READ read WRITE write)                      \
     NUT_DECLARE_FIELD(keytype, name##Id, read##Id, write##Id)                  \
@@ -133,6 +140,58 @@ public slots: \
         m_##name = nullptr; \
         propertyChanged(QT_STRINGIFY2(name##Id));                                                \
     }
+
+// refName:postlibRef
+// def:
+//{
+//"localColumns":["post_user_name","post_date"],
+//"localProperties":["postUserName","postDate"],
+//"masterClassName":"Post"
+//"refColumns":["user_name","date"]}
+
+#define NUT_LIBRARY_REF_KEY_DECLARE(field, refName,refTable,refField)                     \
+    NUT_INFO(__nut_LIBREF_NAME, field, refName) \
+    NUT_INFO(__nut_LIBREF_TABLE_NAME, field, refTable) \
+    NUT_INFO(__nut_LIBREF_TABLE_FIELD_NAME, field, refField)
+
+//    Nut::Row<type> m_##name; \
+//    keytype m_##name##Id; \
+//    Q_PROPERTY(Nut::Row<type> name READ read WRITE write)                                \
+//    Q_PROPERTY(keytype name##Id READ read##Id WRITE write##Id)                                \
+//public:                                                                        \
+//    Nut::Row<type> read() const;                          \
+//    keytype read##Id() const;                                                   \
+//    static NUT_WRAP_NAMESPACE(FieldPhrase<keytype>)& name##Id ## Field(){             \
+//        static NUT_WRAP_NAMESPACE(FieldPhrase<keytype>) f =                       \
+//                NUT_WRAP_NAMESPACE(FieldPhrase<keytype>)                          \
+//                        (staticMetaObject.className(), #name);                 \
+//        return f;                                                              \
+//    }                                                                          \
+//public slots: \
+//    void write(Nut::Row<type> name); \
+//    void write##Id(keytype name##Id);
+
+//#define NUT_LIBRARY_REF_KEY_IMPLEMENT(class, type, keytype, name, read, write)                     \
+//    \
+//    Nut::Row<type> class::read() const { return m_##name ; }                          \
+//    void class::write(Nut::Row<type> name){                                           \
+//        propertyChanged(QT_STRINGIFY2(name##Id));                                                \
+//        m_##name = name;                                                       \
+//        m_##name##Id = name->primaryValue().value<keytype>(); \
+//    } \
+//    \
+//    keytype class::read##Id() const{                                                         \
+//        if (m_##name) \
+//            return m_##name->primaryValue().value<keytype>(); \
+//        return m_##name##Id;                                                       \
+//    }                                                                          \
+//    void class::write##Id(keytype name##Id){                                                     \
+//        propertyChanged(QT_STRINGIFY2(name##Id));                                                \
+//        m_##name##Id = name##Id;                                                       \
+//        m_##name = nullptr; \
+//        propertyChanged(QT_STRINGIFY2(name##Id));                                                \
+//    }
+
 
 
 #define NUT_DECLARE_CHILD_TABLE(type, n)                                       \

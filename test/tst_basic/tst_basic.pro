@@ -8,7 +8,7 @@ CONFIG   += warn_on c++11
 include(../common/nut-lib.pri)
 
 
-DEFINES += Q_OS_OSX
+#DEFINES += Q_OS_OSX
 
 SOURCES += \
     ../common/comment.cpp \
