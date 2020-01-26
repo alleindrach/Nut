@@ -87,9 +87,6 @@ void TableSetBase::clearChilds()
     data->childs.clear();
 }
 
-TableModel * TableSetBase::model() const{
-    return data->table->model();
-}
 void TableSetBase::add(Row<Table> t)
 {
     data.detach();

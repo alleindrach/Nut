@@ -21,7 +21,7 @@
 #include "sqlitegenerator.h"
 #include "../table.h"
 #include "../tablemodel.h"
-
+#include "QUuid"
 NUT_BEGIN_NAMESPACE
 
 SqliteGenerator::SqliteGenerator(Database *parent) : SqlGeneratorBase(parent)
@@ -103,7 +103,8 @@ QString SqliteGenerator::fieldDeclare(FieldModel *field)
 
     if (field->notNull)
         type.append(" NOT NULL");
-
+    if(!field->defaultValue.isEmpty())
+        type.append(" DEFAULT "+field->defaultValue);
     return field->name + " " + type;
 }
 
@@ -304,6 +305,9 @@ QString SqliteGenerator::escapeValue(const QVariant &v) const
     if (v.type() == QVariant::DateTime)
         return "'" + v.toDateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
 
+    if (v.type() == QVariant::Uuid)
+        return "'" +v.toUuid().toString(QUuid::WithoutBraces)+"'" ;
+
     return SqlGeneratorBase::escapeValue(v);
 }
 
@@ -317,6 +321,9 @@ QVariant SqliteGenerator::unescapeValue(const QMetaType::Type &type, const QVari
 
     if (type == QMetaType::QDate)
         return dbValue.toDate();
+
+    if (type == QMetaType::QUuid)
+        return  QUuid::fromString( dbValue.toString());
 
     return SqlGeneratorBase::unescapeValue(type, dbValue);
 }

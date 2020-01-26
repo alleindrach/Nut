@@ -475,11 +475,11 @@ QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
 
     foreach (QString f, t->changedProperties())
         if (f != key)
-            values.append(f + "='" + t->property(f.toLatin1().data()).toString()
-                          + "'");
+            values.append(f + "=" + escapeValue(t->property(f.toLatin1().data()))
+                          + "");
     sql = QString("UPDATE %1 SET %2 WHERE %3=%4")
               .arg(tableName, values.join(", "),
-                   key, t->property(key.toUtf8().data()).toString());
+                   key, escapeValue(t->property(key.toUtf8().data())));
 
     removeTableNames(sql);
 

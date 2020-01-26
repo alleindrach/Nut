@@ -58,7 +58,6 @@ public://TODO: change this to private
 
     void add(Row<Table> t);
     void remove(Row<Table> t);
-    TableModel * model() const;
     friend class Table;
     friend class QueryBase;
 };

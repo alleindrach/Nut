@@ -124,6 +124,10 @@ SqlModelPrivate::SqlModelPrivate(SqlModel *parent)
 {
 
 }
+std::function<QVariant (int, QVariant)>  SqlModel::renderer() const
+{
+    return _renderer;
+}
 
 
 NUT_END_NAMESPACE

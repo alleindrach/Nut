@@ -82,7 +82,9 @@ QList<FieldModel *> TableModel::fields() const
 {
     return _fields;
 }
-
+QMap<QString ,QList<FieldModel*>> TableModel::catalogs() const{
+    return _catFields;
+}
 QList<FieldModel *> TableModel::fieldsByCat(QString cat) const
 {
     QList<FieldModel * > catFields;
@@ -170,7 +172,12 @@ TableModel::TableModel(int typeId, const QString &tableName)
             f->name = f->displayName = name;
             _fields.append(f);
         }
+        if(type== __nut_CATALOG){
+            QList<FieldModel*> catList=_catFields.value(value);
+            _catFields.insert(value,catList);
+        }
     }
+
     // Browse all fields
     for(int j = 1; j < tableMetaObject->propertyCount(); j++){
         QMetaProperty fieldProperty = tableMetaObject->property(j);
@@ -228,12 +235,12 @@ TableModel::TableModel(int typeId, const QString &tableName)
         else if (type == __nut_UNIQUE)
             f->isUnique = true;
         else if (type == __nut_DISPLAY)
-            f->displayName = value.mid(1, value.length() - 2);
+            f->displayName =QString( QObject::tr( value.toUtf8().data()));
         else if (type == __nut_PRIMARY_KEY_AI) {
             f->isPrimaryKey = true;
             f->isAutoIncrement = true;
-//        }else if(type == __nut_REF_CATALOG_INDEX){
-//            f->catIndex=value.toInt();
+        }else if(type == __nut_CATALOG_INDEX){
+            f->catIndex=value.toInt();
         }else if(type == __nut_CATALOG){
             f->catalog=value;
             QList<FieldModel*> catList=_catFields.value(value);

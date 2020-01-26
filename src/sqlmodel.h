@@ -62,6 +62,8 @@ public:
 
 private:
     QExplicitlySharedDataPointer<SqlModelPrivate> d;
+protected:
+    std::function<QVariant (int, QVariant)>  renderer() const ;
 
 signals:
     void beforeShowText(int col, QVariant &value);

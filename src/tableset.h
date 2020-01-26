@@ -49,7 +49,7 @@ public:
     typedef T *pointer;
     typedef T &reference;
 
-    explicit TableSet(Database *parent);
+    explicit TableSet(Database *parent=nullptr);
     explicit TableSet(Table *parent);
 
     void append(Row<T> t);
@@ -76,12 +76,10 @@ Q_OUTOFLINE_TEMPLATE TableSet<T>::TableSet(Table *parent) : TableSetBase(parent)
 {
     data->childClassName = T::staticMetaObject.className();
 }
-
 template<class T>
 Q_OUTOFLINE_TEMPLATE Query<T> *TableSet<T>::query(bool autoDelete)
 {
     Query<T> *q = new Query<T>(data->database, this, autoDelete);
-
     return q;
 }
 

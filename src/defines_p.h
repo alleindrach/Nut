@@ -47,6 +47,7 @@
 #define __nut_CHANGE            "change"
 
 #define __nut_CATALOG           "catalog"
+#define __nut_CATALOG_INDEX           "catalog_index"
 #define __nut_LIBREF_NAME    "ref_name"
 #define __nut_LIBREF_TABLE_NAME    "ref_table_name"
 #define __nut_LIBREF_TABLE_FIELD_NAME "ref_table_field_name"

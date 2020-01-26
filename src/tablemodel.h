@@ -153,7 +153,7 @@ public:
     QList<RelationModel *> foreignKeys() const;
     QList<LibraryModel *> libraryRefs() const;
     QStringList fieldsNames() const;
-
+    QMap<QString ,QList<FieldModel*>> catalogs() const;
     bool operator ==(const TableModel &t) const;
     bool operator !=(const TableModel &t) const;
 

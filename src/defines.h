@@ -31,6 +31,9 @@
 #include <QVariant>
 #include <QMetaClassInfo>
 
+#define INNER_CAT_NAME INNER
+#define INNER_CAT_NAME_STRING "INNER"
+
 #ifdef NUT_COMPILE_STATIC
 #   define NUT_EXPORT
 #else
@@ -42,7 +45,7 @@
                 type "\n" #name "\n" #value)
 
 #define NUT_INFO_STRING(type, name, value)                                     \
-    Q_CLASSINFO(__nut_NAME_PERFIX type #name #value,                           \
+    Q_CLASSINFO(__nut_NAME_PERFIX type #name value,                           \
                 type "\n" #name "\n" value)
 
 #define NUT_FIELD_PERFIX
@@ -84,10 +87,13 @@ public:                                                                        \
 
 #define NUT_DECLARE_FIELD_EX(type, name, read, write,display,cat,inputtype)            \
     NUT_DECLARE_FIELD(type, name, read, write)                                 \
-    NUT_INFO(__nut_CATALOG,name,cat)                                                \
+    NUT_INFO_STRING(__nut_CATALOG,name,cat)                                                \
     NUT_INFO(__nut_INPUT_TYPE,name,inputtype)                               \
-    NUT_DISPLAY_NAME(name,display)
+    NUT_DISPLAY_NAME_STRING(name,display)
 
+
+#define NUT_DECLARE_FIELD_CATALOG(catalog)            \
+    NUT_INFO(__nut_CATALOG,catalog,0)
 
 #define NUT_FOREIGN_KEY(type, keytype, name, read, write)                     \
     Q_PROPERTY(Nut::Row<type> name READ read WRITE write)                      \
@@ -226,6 +232,7 @@ public slots: \
 #define NUT_PRIMARY_AUTO_INCREMENT(x)       NUT_INFO(__nut_PRIMARY_KEY_AI, x, 0)\
             NUT_PRIMARY_KEY(X) NUT_AUTO_INCREMENT(X)
 #define NUT_DISPLAY_NAME(field, name)       NUT_INFO(__nut_DISPLAY, field, name)
+#define NUT_DISPLAY_NAME_STRING(field, name)       NUT_INFO_STRING(__nut_DISPLAY, field, name)
 #define NUT_UNIQUE(x)                       NUT_INFO(__nut_UNIQUE, x, 0)
 #define NUT_LEN(field, len)                 NUT_INFO(__nut_LEN, field, len)
 #define NUT_DEFAULT_VALUE(x, n)             NUT_INFO(__nut_DEFAULT_VALUE, x, n)
