@@ -61,7 +61,7 @@ public:
     Row<T> at(int i) const;
     const Row<T> operator[](int i) const;
 
-    Query<T> *query(bool autoDelete = true);
+    Query<T> *query(QString tableName=QString::null, bool autoDelete = true);
     BulkInserter *bulkInserter();
 };
 
@@ -77,9 +77,9 @@ Q_OUTOFLINE_TEMPLATE TableSet<T>::TableSet(Table *parent) : TableSetBase(parent)
     data->childClassName = T::staticMetaObject.className();
 }
 template<class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *TableSet<T>::query(bool autoDelete)
+Q_OUTOFLINE_TEMPLATE Query<T> *TableSet<T>::query(QString tableName,bool autoDelete)
 {
-    Query<T> *q = new Query<T>(data->database, this, autoDelete);
+    Query<T> *q = new Query<T>(data->database, this, autoDelete,tableName);
     return q;
 }
 

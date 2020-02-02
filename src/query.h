@@ -57,7 +57,7 @@ template <class T>
     bool m_autoDelete;
 
 public:
-    explicit Query(Database *database, TableSetBase *tableSet, bool autoDelete);
+    explicit Query(Database *database, TableSetBase *tableSet, bool autoDelete,QString tablename=QString::null);
     ~Query();
 
     //ddl
@@ -144,7 +144,7 @@ Q_OUTOFLINE_TEMPLATE QList<O> Query<T>::select(const std::function<O (const QSql
 
 template <class T>
 Q_OUTOFLINE_TEMPLATE Query<T>::Query(Database *database, TableSetBase *tableSet,
-                                     bool autoDelete)
+                                     bool autoDelete,QString tablename)
     : QueryBase(database), d_ptr(new QueryPrivate(this)),
       m_autoDelete(autoDelete)
 {
@@ -152,7 +152,12 @@ Q_OUTOFLINE_TEMPLATE Query<T>::Query(Database *database, TableSetBase *tableSet,
 
     d->database = database;
     d->tableSet = tableSet;
-    d->className = T::staticMetaObject.className();
+    if(tablename!=QString::null){
+        QString classname=tableSet->metaObject()->className();
+        d->className=tablename;
+    }else{
+        d->className = T::staticMetaObject.className();
+    }
     d->tableName =
             d->database->model()
             .tableByClassName(d->className)
@@ -179,6 +184,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                 d->relations, d->skip, d->take);
 
     QSqlQuery q = d->database->exec(d->sql);
+    qDebug()<<"toList:SQL|"<<d->sql<<",result:"<<q.size();
     if (q.lastError().isValid()) {
         qDebug() << q.lastError().text();
         return returnList;
@@ -327,7 +333,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             row->setStatus(Table::FeatchedFromDB);
             row->setParent(this);
             row->clear();
-
+            row->setModel(d->database->model().tableByName(d->tableName));
             //set last created row
             data.lastRow = row.data();
         } //while
@@ -639,7 +645,7 @@ Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(SqlModel *model)
                 d->fieldPhrase,
                 d->wherePhrase, d->orderPhrase, d->relations,
                 d->skip, d->take);
-
+    qDebug()<<"SQL|"<<d->sql;
     model->setTable(toList());
     /*
     DatabaseModel dbModel = d->database->model();

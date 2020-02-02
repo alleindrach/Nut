@@ -65,6 +65,19 @@
     { return m_##name; }                                                       \
     private:
 
+
+#define NUT_DECLARE_TABLE_EX(type, name,reftype)                                          \
+    NUT_INFO(__nut_TABLE, type, name)                                           \
+    NUT_INFO(__nut_REF_TYPE,type,reftype)                               \
+    Q_PROPERTY(NUT_WRAP_NAMESPACE(TableSet<type>*) name READ name)              \
+    NUT_WRAP_NAMESPACE(TableSet<type>) *m_##name;                              \
+    public:                                                                    \
+    static const type *_##name;                                                \
+    NUT_WRAP_NAMESPACE(TableSet<type>) *name() const                           \
+    { return m_##name; }                                                       \
+    private:
+
+
 //Table
 #define NUT_DECLARE_FIELD(type, name, read, write)                             \
     Q_PROPERTY(type name READ read WRITE write)                                \
@@ -82,14 +95,27 @@ public:                                                                        \
     }                                                                          \
     void write(type name){                                                     \
         m_##name = name;                                                       \
+        qDebug()<<"write property:"<<#name<<"->"<<name;\
         propertyChanged(#name);                                                \
     }
+#define NUT_DECLARE_TABLE_NAME(name)
+
+//#define NUT_DECLARE_TABLE_NAME(name)                             \
+//    Q_PROPERTY(QString tablename READ tablename )                                \
+//                                                         \
+//private:\
+//    QString m_tablename=#name;\
+//public:                                                                        \
+//    QString  tablename(){             \
+//        return m_tablename;                                                              \
+//    }                                                                          \
 
 #define NUT_DECLARE_FIELD_EX(type, name, read, write,display,cat,inputtype)            \
     NUT_DECLARE_FIELD(type, name, read, write)                                 \
     NUT_INFO_STRING(__nut_CATALOG,name,cat)                                                \
     NUT_INFO(__nut_INPUT_TYPE,name,inputtype)                               \
     NUT_DISPLAY_NAME_STRING(name,display)
+
 
 
 #define NUT_DECLARE_FIELD_CATALOG(catalog)            \

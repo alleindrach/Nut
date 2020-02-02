@@ -289,6 +289,25 @@ void BasicTest::cleanupTestCase()
 //    if (QFile::remove("nut_tst_basic"))
 //        qDebug() << "database removed";
 
+
+    for (int i = 1; i < db.metaObject()->propertyCount(); i++) {
+        QMetaProperty tableProperty = db.metaObject()->property(i);
+        int typeId = QMetaType::type(tableProperty.typeName());
+//            if(typeId==0){
+//                qRegisterMetaType(tableProperty.typeName());
+//                typeId = QMetaType::type(tableProperty.typeName());
+//            }
+
+        if(QString(tableProperty.name())=="posts"){
+//                Nut::TableSet<WellHeader>*  table=m_db->property(tableProperty.name()).convert(typeId,);
+            QVariant v=db.property(tableProperty.name());
+            bool isconvertable=v.canConvert< Nut::TableSet<Post>*>();
+            bool isconverted=v.convert(typeId);
+//               Nut::TableSet<WellHeader>*  table=m_db->property(tableProperty.name());
+            qDebug()<<"can convert to  Nut::TableSet<Post>*  :"<< isconvertable<<",converted:"<<isconverted;
+        }
+        qDebug()<<"Property:"<<tableProperty.name()<<",Type:"<<tableProperty.typeName()<<",TypeId:"<<typeId;
+    }
     PRINT_FORM(db);
 }
 

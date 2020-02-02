@@ -24,7 +24,6 @@ public:
     QSet<QString> changedProperties;
     TableSetBase *parentTableSet;
     QSet<TableSetBase*> childTableSets;
-
     void refreshModel();
 };
 

@@ -91,6 +91,7 @@ struct FieldModel{
     int inputType=0;
     int inputDateSpanIndex=0;
     int inputDateSpanPos=0;
+    int reftype=0;//only one
     QList<InputOption>  inputOptions;
     LibraryModel * libref=nullptr;
     QString refField;
@@ -157,6 +158,8 @@ public:
     bool operator ==(const TableModel &t) const;
     bool operator !=(const TableModel &t) const;
 
+    int refType() const;
+    void setRefType( const int& );
 private:
     QString _name;
     QString _className;
@@ -164,7 +167,7 @@ private:
     QList<FieldModel*> _fields;
     QList<RelationModel*> _foreignKeys;
     QList<LibraryModel*> _libraryRefs;
-
+    int _refType;
     QMap<QString ,QList<FieldModel*>> _catFields;
 
 };

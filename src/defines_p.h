@@ -46,6 +46,7 @@
 #define __nut_REMOVE            "remove"
 #define __nut_CHANGE            "change"
 
+#define __nut_REF_TYPE          "ref_type"
 #define __nut_CATALOG           "catalog"
 #define __nut_CATALOG_INDEX           "catalog_index"
 #define __nut_LIBREF_NAME    "ref_name"

@@ -54,9 +54,10 @@ public:
 
     int save(Database *db);
 
-    virtual QVariant primaryValue() const = 0;
-    virtual void setPrimaryValue(const QVariant &value) = 0;
+    virtual QVariant primaryValue() const ;
+    virtual void setPrimaryValue(const QVariant &value) ;
 
+    virtual QString tableName() const ;
     Status status() const;
     void setStatus(const Status &status);
 
@@ -74,12 +75,13 @@ public:
     enum INPUT_TYPE {NONE,TEXT,BOOLEAN,NUMBER,FLOAT,OPTIONS,DATE,TIME,DATETIME,DATE_SPAN,DATE_TIME_SPAN,TIME_SPAN,LIBRARY};
     Q_ENUM(INPUT_TYPE)
 
+
 signals:
 
 
 public slots:
 
-protected:
+public:
     void propertyChanged(const QString &propName);
 
 private:

@@ -41,5 +41,5 @@ public slots:
 };
 
 Q_DECLARE_METATYPE(Post*)
-
+Q_DECLARE_METATYPE(Nut::TableSet<Post>*)
 #endif // POST_H

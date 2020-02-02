@@ -60,6 +60,16 @@ void TableModel::setTypeId(const int &typeId)
     _typeId = typeId;
 }
 
+int TableModel::refType() const
+{
+    return _refType;
+}
+
+void TableModel::setRefType(const int &refType)
+{
+    _refType = refType;
+}
+
 FieldModel *TableModel::field(int n) const
 {
     if (n < 0 || n >= _fields.count())
@@ -142,8 +152,8 @@ bool TableModel::operator !=(const TableModel &t) const
 TableModel::TableModel(int typeId, const QString &tableName)
 {
     //TODO: check that
-//    if  (findByTypeId(typeId))
-//        return;
+    //    if  (findByTypeId(typeId))
+    //        return;
 
     const QMetaObject *tableMetaObject = QMetaType::metaObjectForType(typeId);
 
@@ -151,10 +161,10 @@ TableModel::TableModel(int typeId, const QString &tableName)
     _name = tableName;
     _className = tableMetaObject->className();
 
-//#ifdef NUT_NAMESPACE
-//    if(_className.startsWith(QT_STRINGIFY(NUT_NAMESPACE) "::"))
-//        _className = _className.replace(QT_STRINGIFY(NUT_NAMESPACE) "::", "");
-//#endif
+    //#ifdef NUT_NAMESPACE
+    //    if(_className.startsWith(QT_STRINGIFY(NUT_NAMESPACE) "::"))
+    //        _className = _className.replace(QT_STRINGIFY(NUT_NAMESPACE) "::", "");
+    //#endif
 
     // get fields names
     for(int j = 0; j < tableMetaObject->classInfoCount(); j++){
@@ -163,7 +173,7 @@ TableModel::TableModel(int typeId, const QString &tableName)
         QString value;
 
         if (!nutClassInfoString(tableMetaObject->classInfo(j),
-                            type, name, value)) {
+                                type, name, value)) {
             continue;
         }
 
@@ -199,7 +209,7 @@ TableModel::TableModel(int typeId, const QString &tableName)
         QString value;
 
         if (!nutClassInfoString(tableMetaObject->classInfo(j),
-                            type, name, value)) {
+                                type, name, value)) {
             continue;
         }
 
@@ -304,6 +314,7 @@ TableModel::TableModel(int typeId, const QString &tableName)
             LibraryModel* libmodelRef=new LibraryModel(jso);
             this->_libraryRefs.append(libmodelRef);
         }
+
     }
 }
 
@@ -383,7 +394,7 @@ TableModel::~TableModel()
     qDeleteAll(_foreignKeys);
     qDeleteAll(_libraryRefs);
 
-//    qDeleteAll(_catFields);
+    //    qDeleteAll(_catFields);
 }
 
 QJsonObject TableModel::toJson() const

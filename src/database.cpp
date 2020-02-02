@@ -246,6 +246,8 @@ bool DatabasePrivate::getCurrectScheema()
         }
     }
 
+
+
     for (int i = 1; i < q->metaObject()->propertyCount(); i++) {
         QMetaProperty tableProperty = q->metaObject()->property(i);
         int typeId = QMetaType::type(tableProperty.typeName());
@@ -253,10 +255,31 @@ bool DatabasePrivate::getCurrectScheema()
         if (tables.values().contains(tableProperty.name())
             && (unsigned)typeId >= QVariant::UserType) {
             TableModel *sch = new TableModel(typeId, tableProperty.name());
+
             currentModel.append(sch);
         }
     }
 
+    for (int i = 0; i < q->metaObject()->classInfoCount(); i++) {
+        QString type;
+        QString name;
+        QString value;
+
+        if (!nutClassInfoString(q->metaObject()->classInfo(i),
+                                type, name, value)) {
+
+            errorMessage = QString("No valid table in %1")
+                    .arg(q->metaObject()->classInfo(i).value());
+            continue;
+        }
+        if (type == __nut_REF_TYPE) {
+            foreach (TableModel *table, currentModel) {
+                if(table->name()==type){
+                    table->setRefType(value.toInt());
+                }
+            }
+        }
+    }
     foreach (TableModel *table, currentModel) {
         foreach (FieldModel *f, table->fields()) {
             if (f->isPrimaryKey && ! sqlGenertor->supportPrimaryKey(f->type))

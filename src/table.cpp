@@ -51,8 +51,8 @@ Table::~Table()
 {
     //Q_D(Table);
 
-//    if (d->parentTableSet)
-//        d->parentTableSet->remove(this);
+    //    if (d->parentTableSet)
+    //        d->parentTableSet->remove(this);
 }
 
 void Table::add(TableSetBase *t)
@@ -85,15 +85,15 @@ void Table::add(TableSetBase *t)
 void Table::propertyChanged(const QString &propName)
 {
     //Q_D(Table);
-//    if (!d->model)
-//         d->model = TableModel::findByClassName(metaObject()->className());
+    //    if (!d->model)
+    //         d->model = TableModel::findByClassName(metaObject()->className());
 
-//    if (!d->model)
-//        qFatal ("model for class '%s' not found", qPrintable(metaObject()->className()));
+    //    if (!d->model)
+    //        qFatal ("model for class '%s' not found", qPrintable(metaObject()->className()));
 
-//    foreach (FieldModel *f, d->model->fields())
-//        if(f->isPrimaryKey && propName == f->name && f->isAutoIncrement)
-//            return;
+    //    foreach (FieldModel *f, d->model->fields())
+    //        if(f->isPrimaryKey && propName == f->name && f->isAutoIncrement)
+    //            return;
 
     d.detach();
     d->changedProperties.insert(propName);
@@ -131,11 +131,11 @@ bool Table::setParentTable(Table *master, TableModel *masterModel, TableModel *m
     //Q_D(Table);
     d.detach();
 
-    QString masterClassName = master->metaObject()->className();
+    QString masterClassName = master->tableName();
     d->refreshModel();
 
-//    if (!d->model)
-//        d->model = TableModel::findByClassName(metaObject()->className());
+    //    if (!d->model)
+    //        d->model = TableModel::findByClassName(metaObject()->className());
 
     foreach (RelationModel *r, model->foreignKeys())
         if(r->masterClassName == masterClassName)
@@ -160,8 +160,8 @@ void Table::setParentTableSet(TableSetBase *parent)
     //Q_D(Table);
     d->parentTableSet = parent;
 
-//    if (parent)
-//        d->parentTableSet->add(this);
+    //    if (parent)
+    //        d->parentTableSet->add(this);
 }
 
 TableSetBase *Table::childTableSet(const QString &name) const
@@ -177,9 +177,9 @@ int Table::save(Database *db)
 {
     //Q_D(Table);
 
-    QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, db->tableName(metaObject()->className())));
+    QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, this->tableName()));
 
-    auto model = db->model().tableByClassName(metaObject()->className());
+    auto model = db->model().tableByClassName(this->tableName());
     if(status() == Added && model->isPrimaryKeyAutoIncrement())
         setProperty(model->primaryKey().toLatin1().data(), q.lastInsertId());
 
@@ -212,9 +212,19 @@ TablePrivate::TablePrivate() : QSharedData(),
 
 void TablePrivate::refreshModel()
 {
-//    Q_Q(Table);
-//    if (!model)
-//        model = TableModel::findByClassName(q->metaObject()->className());
+    //    Q_Q(Table);
+    //    if (!model)
+    //        model = TableModel::findByClassName(q->metaObject()->className());
+}
+QVariant Table::primaryValue() const {
+
+}
+void Table::setPrimaryValue(const QVariant &value) {
+
+}
+QString Table::tableName() const {
+    TableModel * m=this->d->model;
+    return m->name();
 }
 
 NUT_END_NAMESPACE
