@@ -57,7 +57,7 @@ public:
     virtual QVariant primaryValue() const ;
     virtual void setPrimaryValue(const QVariant &value) ;
 
-    virtual QString tableName() const ;
+    virtual QString className() const ;
     Status status() const;
     void setStatus(const Status &status);
 

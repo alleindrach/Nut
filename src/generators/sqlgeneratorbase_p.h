@@ -100,14 +100,14 @@ public:
                          QStringList *order = Q_NULLPTR);
     virtual QString join(const QStringList &list, QStringList *order = Q_NULLPTR);
 
-    virtual QString saveRecord(Table *t, QString tableName);
+    virtual QString saveRecord(Table *t, QString className);
 
     virtual QString recordsPhrase(TableModel *table);
 
     virtual QString insertBulk(const QString &tableName, const PhraseList &ph, const QList<QVariantList> &vars);
-    virtual QString insertRecord(Table *t, QString tableName);
-    virtual QString updateRecord(Table *t, QString tableName);
-    virtual QString deleteRecord(Table *t, QString tableName);
+    virtual QString insertRecord(Table *t, QString className);
+    virtual QString updateRecord(Table *t, QString className);
+    virtual QString deleteRecord(Table *t, QString className);
     virtual QString deleteRecords(const QString &tableName, const QString &where);
 
     virtual QString selectCommand(const QString &tableName,

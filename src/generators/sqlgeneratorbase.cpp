@@ -88,18 +88,18 @@ QString SqlGeneratorBase::createTable(TableModel *table)
     return QString();
 }
 
-QString SqlGeneratorBase::saveRecord(Table *t, QString tableName)
+QString SqlGeneratorBase::saveRecord(Table *t, QString className)
 {
-    Q_ASSERT(!tableName.isEmpty() && !tableName.isNull());
+    Q_ASSERT(!className.isEmpty() && !className.isNull());
     switch (t->status()) {
     case Table::Added:
-        return insertRecord(t, tableName);
+        return insertRecord(t, className);
 
     case Table::Deleted:
-        return deleteRecord(t, tableName);
+        return deleteRecord(t, className);
 
     case Table::Modified:
-        return updateRecord(t, tableName);
+        return updateRecord(t, className);
 
     case Table::NewCreated:
     case Table::FeatchedFromDB:
@@ -437,10 +437,12 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
     return ret;
 }
 
-QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
+QString SqlGeneratorBase::insertRecord(Table *t, QString className)
 {
     QString sql = QString();
-    auto model = _database->model().tableByName(tableName);
+    auto model = _database->model().tableByClassName(className);
+
+    QString tableName=model->name();
 
     QString key = model->isPrimaryKeyAutoIncrement() ? model->primaryKey() : QString();
 
@@ -466,10 +468,11 @@ QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
     return sql;
 }
 
-QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
+QString SqlGeneratorBase::updateRecord(Table *t, QString className)
 {
     QString sql = QString();
-    auto model = _database->model().tableByName(tableName);
+    auto model = _database->model().tableByClassName(className);
+    QString tableName=model->name();
     QString key = model->primaryKey();
     QStringList values;
 
@@ -486,9 +489,10 @@ QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
     return sql;
 }
 
-QString SqlGeneratorBase::deleteRecord(Table *t, QString tableName)
+QString SqlGeneratorBase::deleteRecord(Table *t, QString className)
 {
-    auto model = _database->model().tableByName(tableName);
+    auto model = _database->model().tableByClassName(className);
+    QString tableName=model->name();
     QString key = model->primaryKey();
     QString sql = QString("DELETE FROM %1 WHERE %2='%3'")
         .arg(tableName, key, t->property(key.toUtf8().data()).toString());

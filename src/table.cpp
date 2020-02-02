@@ -131,7 +131,7 @@ bool Table::setParentTable(Table *master, TableModel *masterModel, TableModel *m
     //Q_D(Table);
     d.detach();
 
-    QString masterClassName = master->tableName();
+    QString masterClassName = master->className();
     d->refreshModel();
 
     //    if (!d->model)
@@ -177,9 +177,9 @@ int Table::save(Database *db)
 {
     //Q_D(Table);
 
-    QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, this->tableName()));
+    QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, this->className()));
 
-    auto model = db->model().tableByClassName(this->tableName());
+    auto model = db->model().tableByClassName(this->className());
     if(status() == Added && model->isPrimaryKeyAutoIncrement())
         setProperty(model->primaryKey().toLatin1().data(), q.lastInsertId());
 
@@ -222,9 +222,12 @@ QVariant Table::primaryValue() const {
 void Table::setPrimaryValue(const QVariant &value) {
 
 }
-QString Table::tableName() const {
+QString Table::className() const {
     TableModel * m=this->d->model;
-    return m->name();
+    if(m)
+        return m->className();
+    else
+        return metaObject()->className();
 }
 
 NUT_END_NAMESPACE
