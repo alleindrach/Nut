@@ -274,7 +274,7 @@ bool DatabasePrivate::getCurrectScheema()
         }
         if (type == __nut_REF_TYPE) {
             foreach (TableModel *table, currentModel) {
-                if(table->name()==type){
+                if(table->className()==name){
                     table->setRefType(value.toInt());
                 }
             }
