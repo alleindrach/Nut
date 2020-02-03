@@ -12,12 +12,12 @@ class NUT_EXPORT LibraryModel : public QObject
     Q_PROPERTY(TableModel* thisTable  READ thisTable WRITE setThisTable NOTIFY thisTableChanged)
     Q_PROPERTY(QStringList refColumns READ refColumns WRITE setRefColumns NOTIFY refColumnsChanged)
     Q_PROPERTY(TableModel* libraryTable READ libraryTable WRITE setLibraryTable NOTIFY libraryTableChanged)
-    Q_PROPERTY(QString masterClassName READ masterClassName WRITE setMasterClassName NOTIFY masterClassNameChanged)
+    Q_PROPERTY(QString libraryTableName READ libraryTableName WRITE setLibraryTableName NOTIFY libraryTableNameChanged)
 public:
 //    explicit LibraryModel(QObject *parent = nullptr);
 
     LibraryModel() :m_librefName(QString()), m_localColumns(QStringList()), m_localProperties(QStringList()),
-        m_thisTable(nullptr), m_refColumns(QStringList()), m_masterClassName(QString())
+        m_thisTable(nullptr), m_refColumns(QStringList()), m_libraryTableName(QString())
     {
     }
     explicit LibraryModel(const QJsonObject &obj);
@@ -35,7 +35,7 @@ public:
     QStringList refColumns() const;
     TableModel* thisTable() const;
     TableModel* libraryTable() const;
-    QString masterClassName() const;
+    QString libraryTableName() const;
 
     void setLibrefName(QString) ;
     void setLocalColumns(QStringList) ;
@@ -43,7 +43,7 @@ public:
     void setRefColumns(QStringList) ;
     void setThisTable(TableModel *) ;
     void setLibraryTable(TableModel *) ;
-    void setMasterClassName(QString) ;
+    void setLibraryTableName(QString) ;
 signals:
     void librefNameChanged();
     void localColumnsChanged();
@@ -51,7 +51,7 @@ signals:
     void thisTableChanged();
     void refColumnsChanged();
     void libraryTableChanged();
-    void masterClassNameChanged();
+    void libraryTableNameChanged();
 public slots:
 private:
 //    //slave
@@ -62,7 +62,7 @@ private:
     QStringList m_refColumns;
     TableModel *m_libraryTable{nullptr};
 
-    QString m_masterClassName;
+    QString m_libraryTableName;
     QString m_librefName;
 };
 

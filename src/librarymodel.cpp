@@ -31,7 +31,7 @@ LibraryModel::LibraryModel(const QJsonObject &obj)
         m_localProperties.append(v.toString());
     }
 
-    m_masterClassName = obj.value("masterClassName").toString();
+    m_libraryTableName = obj.value("libraryTableName").toString();
 
     m_refColumns.clear();
     vlist=obj.value("refColumns").toArray().toVariantList();
@@ -47,7 +47,7 @@ QJsonObject LibraryModel::toJson() const
     o.insert("name",m_librefName);
     o.insert("localColumns",QJsonArray::fromStringList( m_localColumns));
     o.insert("localProperties", QJsonArray::fromStringList(m_localProperties));
-    o.insert("masterClassName", m_masterClassName);
+    o.insert("libraryTableName", m_libraryTableName);
     o.insert("refColumns", QJsonArray::fromStringList(m_refColumns));
     return o;
 }
@@ -111,8 +111,8 @@ TableModel* LibraryModel::thisTable() const{
 TableModel* LibraryModel::libraryTable() const{
     return m_libraryTable;
 }
-QString LibraryModel::masterClassName() const{
-    return m_masterClassName;
+QString LibraryModel::libraryTableName() const{
+    return m_libraryTableName;
 }
 
 void LibraryModel::setLibrefName(QString  value) {
@@ -136,6 +136,6 @@ void LibraryModel::setThisTable(TableModel * value) {
 void LibraryModel::setLibraryTable(TableModel * value) {
     this->m_libraryTable=value;
 }
-void LibraryModel::setMasterClassName(QString value) {
-    this->m_masterClassName=value;
+void LibraryModel::setLibraryTableName(QString value) {
+    this->m_libraryTableName=value;
 }

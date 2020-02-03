@@ -323,7 +323,7 @@ QVariant SqliteGenerator::unescapeValue(const QMetaType::Type &type, const QVari
         return dbValue.toDate();
 
     if (type == QMetaType::QUuid)
-        return  QUuid::fromString( dbValue.toString());
+        return  dbValue.toUuid();
 
     return SqlGeneratorBase::unescapeValue(type, dbValue);
 }

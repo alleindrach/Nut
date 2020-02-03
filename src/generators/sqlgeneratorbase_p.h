@@ -115,6 +115,7 @@ public:
                                   const ConditionalPhrase &where,
                                   const PhraseList &order,
                                   const QList<RelationModel *> &joins,
+                                  QList<FieldModel * > & selectFields,
                                   const int skip = -1,
                                   const int take = -1);
 

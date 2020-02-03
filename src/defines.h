@@ -180,6 +180,7 @@ public slots: \
 //"localProperties":["postUserName","postDate"],
 //"masterClassName":"Post"
 //"refColumns":["user_name","date"]}
+//field:localproperty/localColumn
 
 #define NUT_LIBRARY_REF_KEY_DECLARE(field, refName,refTable,refField)                     \
     NUT_INFO(__nut_LIBREF_NAME, field, refName) \

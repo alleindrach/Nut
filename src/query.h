@@ -45,7 +45,7 @@
 #include "phrase.h"
 #include "tablemodel.h"
 #include "sqlmodel.h"
-
+#include "phrases/fieldphrase.h"
 NUT_BEGIN_NAMESPACE
 
 template <class T>
@@ -83,6 +83,7 @@ public:
     //data selecting
     Row<T> first();
     RowList<T> toList(int count = -1);
+    RowList<T> toList(QList<FieldModel*>& fields,int count = -1);
     template <typename F>
     QList<F> select(const FieldPhrase<F> f);
 
@@ -98,7 +99,7 @@ public:
 
     //data mailpulation
     int update(const AssignmentPhraseList &ph);
-//    int insert(const AssignmentPhraseList &ph);
+    //    int insert(const AssignmentPhraseList &ph);
     int remove();
 
     QSqlQueryModel *toModel();
@@ -154,14 +155,17 @@ Q_OUTOFLINE_TEMPLATE Query<T>::Query(Database *database, TableSetBase *tableSet,
     d->tableSet = tableSet;
     if(tablename!=QString::null){
         QString classname=tableSet->metaObject()->className();
-        d->className=tablename;
+        //        d->className=classname;
+        d->tableName=tablename;
+        d->className=tableSet->childClassName();
     }else{
         d->className = T::staticMetaObject.className();
+        d->tableName =
+                d->database->model()
+                .tableByClassName(d->className)
+                ->name();
     }
-    d->tableName =
-            d->database->model()
-            .tableByClassName(d->className)
-            ->name();
+
 }
 
 template <class T>
@@ -170,9 +174,14 @@ Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
     Q_D(Query);
     delete d;
 }
-
 template <class T>
-Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
+Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList( int count )
+{
+    QList<FieldModel*> fields;
+    return toList(fields,count);
+}
+template <class T>
+Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList( QList<FieldModel*>& fields,int count )
 {
     Q_UNUSED(count);
     Q_D(Query);
@@ -181,8 +190,11 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 
     d->sql = d->database->sqlGenertor()->selectCommand(
                 d->tableName, d->fieldPhrase, d->wherePhrase, d->orderPhrase,
-                d->relations, d->skip, d->take);
-
+                d->relations,fields, d->skip, d->take);
+//    foreach(PhraseData * fd, d->fieldPhrase.data){
+//        FieldModel * p=d->database->model().tableByClassName(fd->className)->field(fd->fieldName);
+//        fields.append(p);
+//    }
     QSqlQuery q = d->database->exec(d->sql);
     qDebug()<<"toList:SQL|"<<d->sql<<",result:"<<q.size();
     if (q.lastError().isValid()) {
@@ -278,14 +290,14 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             // check if key value is changed
             if (data.lastKeyValue == q.value(data.keyFiledname)) {
                 --p;
-//                qDebug() << "key os not changed for" << data.keyFiledname;
+                //                qDebug() << "key os not changed for" << data.keyFiledname;
                 continue;
             }
 
             // check if master if current table has processed
             foreach (int m, data.masters)
                 if (!checked[m]) {
-//                    qDebug() << "row is checked";
+                    //                    qDebug() << "row is checked";
                     continue;
                 }
 
@@ -295,7 +307,9 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 
             //create table row
             Row<Table> row;
-            if (data.table->className() == d->className) {
+            if (
+                    data.table->className() == d->className||
+                    data.table->name()==d->tableName) {
                 row = Nut::create<T>();
 #ifdef NUT_SHARED_POINTER
                 returnList.append(row.objectCast<T>());
@@ -309,7 +323,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                 const QMetaObject *childMetaObject
                         = QMetaType::metaObjectForType(data.table->typeId());
                 table = qobject_cast<Table *>(childMetaObject->newInstance());
-//                table = dynamic_cast<Table *>(QMetaType::create(data.table->typeId()));
+                //                table = dynamic_cast<Table *>(QMetaType::create(data.table->typeId()));
                 if (!table)
                     qFatal("Could not create instance of %s",
                            qPrintable(data.table->name()));
@@ -317,11 +331,15 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             }
 
             QList<FieldModel*> childFields = data.table->fields();
-            foreach (FieldModel *field, childFields)
-                row->setProperty(field->name.toLatin1().data(),
-                                   d->database->sqlGenertor()->unescapeValue(
-                                       field->type,
-                                       q.value(data.table->name() + "." + field->name)));
+            foreach (FieldModel *field, childFields){
+                QVariant v=q.value(data.table->name() + "." + field->name);
+
+                if(v.isValid()){
+                    QVariant typedValue=d->database->sqlGenertor()->unescapeValue(
+                                field->type,v);
+                    row->setProperty(field->name.toLatin1().data(),typedValue);
+                }
+            }
 
             for (int i = 0; i < data.masters.count(); ++i) {
                 int master = data.masters[i];
@@ -469,7 +487,7 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::insert(const AssignmentPhraseList &p)
             ->insertCommand(d->tableName, p);
     QSqlQuery q = d->database->exec(d->sql);
 
-   return q.lastInsertId();
+    return q.lastInsertId();
 }
 
 template <class T>
@@ -485,7 +503,7 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(const QString &className)
 
     if (!rel) {
         qDebug() << "No relation between" << d->className
-                << "and" << className;
+                 << "and" << className;
         return this;
     }
 
@@ -604,11 +622,12 @@ template <class T>
 Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(QSqlQueryModel *model)
 {
     Q_D(Query);
-
+    QList<FieldModel *> selectFields;
     d->sql = d->database->sqlGenertor()->selectCommand(
                 d->tableName,
                 d->fieldPhrase,
                 d->wherePhrase, d->orderPhrase, d->relations,
+                selectFields,
                 d->skip, d->take);
 
     DatabaseModel dbModel = d->database->model();
@@ -640,13 +659,14 @@ Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(SqlModel *model)
 {
     Q_D(Query);
 
-    d->sql = d->database->sqlGenertor()->selectCommand(
-                d->tableName,
-                d->fieldPhrase,
-                d->wherePhrase, d->orderPhrase, d->relations,
-                d->skip, d->take);
-    qDebug()<<"SQL|"<<d->sql;
-    model->setTable(toList());
+//    d->sql = d->database->sqlGenertor()->selectCommand(
+//                d->tableName,
+//                d->fieldPhrase,
+//                d->wherePhrase, d->orderPhrase, d->relations,
+//                model->selectedFields(),
+//                d->skip, d->take);
+//    qDebug()<<"SQL|"<<d->sql;
+    model->setTable(toList(model->selectedFields()));
     /*
     DatabaseModel dbModel = d->database->model();
     model->setQuery(d->sql, d->database->database());

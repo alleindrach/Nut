@@ -92,8 +92,8 @@ QList<FieldModel *> TableModel::fields() const
 {
     return _fields;
 }
-QMap<QString ,QList<FieldModel*>> TableModel::catalogs() const{
-    return _catFields;
+QList<Catalog *> TableModel::catalogs() const{
+    return _catlogs;
 }
 QList<FieldModel *> TableModel::fieldsByCat(QString cat) const
 {
@@ -183,8 +183,13 @@ TableModel::TableModel(int typeId, const QString &tableName)
             _fields.append(f);
         }
         if(type== __nut_CATALOG){
-            QList<FieldModel*> catList=_catFields.value(value);
-            _catFields.insert(value,catList);
+            Catalog * cat=searchCatlog(value);
+            if(!cat){
+                cat=new Catalog();
+                cat->displayName=value;
+                _catlogs.append(cat);
+            }
+
         }
     }
 
@@ -200,6 +205,7 @@ TableModel::TableModel(int typeId, const QString &tableName)
             continue;
         fieldObj->type = static_cast<QMetaType::Type>(fieldProperty.type());
         fieldObj->typeName = QString(fieldProperty.typeName());
+        fieldObj->tableClassName=tableMetaObject->className();
     }
 
     // Browse class infos
@@ -253,9 +259,13 @@ TableModel::TableModel(int typeId, const QString &tableName)
             f->catIndex=value.toInt();
         }else if(type == __nut_CATALOG){
             f->catalog=value;
-            QList<FieldModel*> catList=_catFields.value(value);
-            catList.insert(f->catIndex,f);
-            _catFields.insert(value,catList);
+            Catalog * cat=searchCatlog(value);
+            if(!cat){
+                cat=new Catalog();
+                cat->displayName=value;
+                _catlogs.append(cat);
+            }
+            cat->fields.append(f);
         }else if(type == __nut_CAL_EXPRESSION){
             f->calExpress=value;
         }else if(type == __nut_INPUT_TYPE){
@@ -292,8 +302,8 @@ TableModel::TableModel(int typeId, const QString &tableName)
             f->libref=libRef;
         }else if(type==__nut_LIBREF_TABLE_NAME)
         {
-            if(f->libref->masterClassName().isEmpty())
-                f->libref->setMasterClassName(value);
+            if(f->libref->libraryTableName().isEmpty())
+                f->libref->setLibraryTableName(value);
         }else if(type==__nut_LIBREF_TABLE_FIELD_NAME)
         {
             LibraryModel * ref=f->libref;
@@ -393,7 +403,7 @@ TableModel::~TableModel()
     qDeleteAll(_fields);
     qDeleteAll(_foreignKeys);
     qDeleteAll(_libraryRefs);
-
+    qDeleteAll(_catlogs);
     //    qDeleteAll(_catFields);
 }
 
@@ -459,7 +469,7 @@ RelationModel *TableModel::foreignKeyByField(const QString &fieldName) const
 LibraryModel * TableModel::libraryRef(const QString &otherTable) const
 {
     foreach (LibraryModel *lm, _libraryRefs)
-        if(lm->masterClassName() == otherTable)
+        if(lm->libraryTableName() == otherTable)
             return lm;
 
     return nullptr;
@@ -473,16 +483,14 @@ LibraryModel *TableModel::libraryRefByName(const QString &librefName) const{
     }
     return nullptr;
 }
-LibraryModel *TableModel::libraryRefByField(const QStringList &refFieldNames) const
+LibraryModel *TableModel::libraryRefByField(const QString localFieldName) const
 {
     foreach (LibraryModel *lm, _libraryRefs)
     {
-        QString key=lm->localColumnsKey();
-        QStringList tmpRefFieldNames=refFieldNames;
-        tmpRefFieldNames.sort();
-        QString keyRef=tmpRefFieldNames.join("_");
-        if(keyRef == key)
-            return lm;
+        foreach(QString fieldName,lm->localProperties()){
+            if(fieldName==localFieldName)
+                return lm;
+        }
     }
     return nullptr;
 }
@@ -597,6 +605,15 @@ bool operator !=(const RelationModel &l, const RelationModel &r)
 {
     return !(l == r);
 }
+Catalog * TableModel::searchCatlog(QString  name){
+    Catalog * cat=nullptr;
+    for(int i=0;i<_catlogs.length();i++){
 
+        if(_catlogs[i]->displayName==name){
+            cat=_catlogs[i];
+        }
+    }
+    return cat;
+}
 
 NUT_END_NAMESPACE

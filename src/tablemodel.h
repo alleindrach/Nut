@@ -31,6 +31,11 @@ class QJsonObject;
 NUT_BEGIN_NAMESPACE
 
 class TableModel;
+class FieldModel;
+struct Catalog{
+    QString displayName;
+    QList<FieldModel*> fields;
+};
 struct InputOption{
     QString displayName;
     QVariant value;
@@ -67,7 +72,7 @@ struct FieldModel{
     bool isAutoIncrement{false};
     bool isUnique{false};
     QString displayName;
-
+    QString tableClassName;
     bool operator ==(const FieldModel &f) const{
 
         bool b = name.toLower() == f.name.toLower()
@@ -134,7 +139,7 @@ public:
     RelationModel *foreignKeyByField(const QString &fieldName) const;
 
     LibraryModel *libraryRef(const QString &otherTable) const;
-    LibraryModel *libraryRefByField(const QStringList &fieldNames) const;
+    LibraryModel *libraryRefByField(const QString fieldName) const;
     LibraryModel *libraryRefByName(const QString &librefName) const;
     QString toString() const;
 
@@ -154,12 +159,13 @@ public:
     QList<RelationModel *> foreignKeys() const;
     QList<LibraryModel *> libraryRefs() const;
     QStringList fieldsNames() const;
-    QMap<QString ,QList<FieldModel*>> catalogs() const;
+    QList<Catalog*> catalogs() const;
     bool operator ==(const TableModel &t) const;
     bool operator !=(const TableModel &t) const;
 
     int refType() const;
     void setRefType( const int& );
+    Catalog * searchCatlog(QString  name);
 private:
     QString _name;
     QString _className;
@@ -168,7 +174,7 @@ private:
     QList<RelationModel*> _foreignKeys;
     QList<LibraryModel*> _libraryRefs;
     int _refType;
-    QMap<QString ,QList<FieldModel*>> _catFields;
+    QList<Catalog*> _catlogs;
 
 };
 

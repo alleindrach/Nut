@@ -177,9 +177,9 @@ QStringList SqlGeneratorBase::diff(const DatabaseModel &lastModel,
         if (!sql.isEmpty())
             ret << sql;
 
-//        QString sqlRel = diffRelation(oldTable, newTable);
-//        if (!sqlRel.isEmpty())
-//            ret << sqlRel;
+        //        QString sqlRel = diffRelation(oldTable, newTable);
+        //        if (!sqlRel.isEmpty())
+        //            ret << sqlRel;
     }
 
     return ret;
@@ -251,18 +251,18 @@ QStringList SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
             columnSql << declare;
         }
     }
-//    foreach (QString fieldName, relations) {
-//        RelationModel *newRelation = newTable->foregionKeyByField(fieldName);
-//        if (oldTable) {
-//            RelationModel *oldRelation = oldTable->foregionKeyByField(fieldName);
+    //    foreach (QString fieldName, relations) {
+    //        RelationModel *newRelation = newTable->foregionKeyByField(fieldName);
+    //        if (oldTable) {
+    //            RelationModel *oldRelation = oldTable->foregionKeyByField(fieldName);
 
-//            QString buffer = diff(oldRelation, newRelation);
-//            if (!buffer.isNull())
-//                columnSql << buffer;
-//        } else {
-//            columnSql << relationDeclare(newRelation);
-//        }
-//    }
+    //            QString buffer = diff(oldRelation, newRelation);
+    //            if (!buffer.isNull())
+    //                columnSql << buffer;
+    //        } else {
+    //            columnSql << relationDeclare(newRelation);
+    //        }
+    //    }
     QString sql;
     if (oldTable) {
         sql = QString("ALTER TABLE %1 \n%2")
@@ -313,7 +313,7 @@ QStringList SqlGeneratorBase::diffRelation(TableModel *oldTable, TableModel *new
 
     if (columnSql.count())
         ret.append("ALTER TABLE " + newTable->name() + "\n"
-                + columnSql.join(",\n"));
+                   + columnSql.join(",\n"));
 
     return ret;
 }
@@ -335,17 +335,17 @@ QStringList SqlGeneratorBase::diff(RelationModel *oldRel, RelationModel *newRel)
     */
     if (!oldRel)
         ret.append(QString("ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) "
-                       "REFERENCES %2(%3)")
-                .arg(newRel->localColumn, newRel->masterTable->name(),
-                     newRel->foreignColumn));
+                           "REFERENCES %2(%3)")
+                   .arg(newRel->localColumn, newRel->masterTable->name(),
+                        newRel->foreignColumn));
 
     if (!newRel)
         ret.append(QString("ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) "
-                       "REFERENCES %2(%3)")
-                .arg(oldRel->localColumn, oldRel->masterTable->name(),
-                     oldRel->foreignColumn));
+                           "REFERENCES %2(%3)")
+                   .arg(oldRel->localColumn, oldRel->masterTable->name(),
+                        oldRel->foreignColumn));
 
-//    if (*oldRel == *newRel)
+    //    if (*oldRel == *newRel)
     return ret;
 }
 
@@ -420,14 +420,14 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
                 // table is master of mainTable
                 ret.append(QString(" INNER JOIN [%1] ON %4.%2 = %1.%3")
                            .arg(table, rel->localColumn,
-                           rel->masterTable->primaryKey(), mainTable));
+                                rel->masterTable->primaryKey(), mainTable));
 
                 if (order != Q_NULLPTR)
                     order->append(mainTable + "." + rel->localColumn);
 
             } else {
-//                qInfo("Relation for %s and %s not exists",
-//                      qPrintable(table), qPrintable(mainTable));
+                //                qInfo("Relation for %s and %s not exists",
+                //                      qPrintable(table), qPrintable(mainTable));
             }
         }
 
@@ -461,7 +461,7 @@ QString SqlGeneratorBase::insertRecord(Table *t, QString className)
         changedPropertiesText.append(f);
     }
     sql = QString("INSERT INTO %1 (%2) VALUES (%3)")
-              .arg(tableName, changedPropertiesText, values.join(", "));
+            .arg(tableName, changedPropertiesText, values.join(", "));
 
     removeTableNames(sql);
 
@@ -481,8 +481,8 @@ QString SqlGeneratorBase::updateRecord(Table *t, QString className)
             values.append(f + "=" + escapeValue(t->property(f.toLatin1().data()))
                           + "");
     sql = QString("UPDATE %1 SET %2 WHERE %3=%4")
-              .arg(tableName, values.join(", "),
-                   key, escapeValue(t->property(key.toUtf8().data())));
+            .arg(tableName, values.join(", "),
+                 key, escapeValue(t->property(key.toUtf8().data())));
 
     removeTableNames(sql);
 
@@ -495,7 +495,7 @@ QString SqlGeneratorBase::deleteRecord(Table *t, QString className)
     QString tableName=model->name();
     QString key = model->primaryKey();
     QString sql = QString("DELETE FROM %1 WHERE %2='%3'")
-        .arg(tableName, key, t->property(key.toUtf8().data()).toString());
+            .arg(tableName, key, t->property(key.toUtf8().data()).toString());
     replaceTableNames(sql);
     return sql;
 }
@@ -530,12 +530,12 @@ QString SqlGeneratorBase::fromTableText(const QString &tableName,
     if (!joinClassName.isNull()) {
         QString joinTableName = _database->tableName(joinClassName);
         RelationModel *rel
-            = _database->model().relationByTableNames(tableName, joinTableName);
+                = _database->model().relationByTableNames(tableName, joinTableName);
         if (rel) {
             QString pk = _database->model().tableByName(tableName)->primaryKey();
             tableNameText = QString("%1 INNER JOIN %2 ON (%1.%3 = %2.%4)")
-                                .arg(tableName, joinTableName,
-                                     pk, rel->localColumn);
+                    .arg(tableName, joinTableName,
+                         pk, rel->localColumn);
             orderBy = tableName + "." + pk;
         } else {
             qWarning("Relation between table %s and class %s (%s) not exists!",
@@ -567,13 +567,15 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
                                         const ConditionalPhrase &where,
                                         const PhraseList &order,
                                         const QList<RelationModel*> &joins,
+                                        QList<FieldModel*>& selectedFields,
                                         const int skip,
-                                        const int take)
+                                        const int take
+                                        )
 {
     Q_UNUSED(skip);
     Q_UNUSED(take);
     QString selectText;
-
+    selectedFields.clear();
     if (fields.data.count() == 0) {
         QSet<TableModel*> tables;
         tables.insert(_database->model().tableByName(tableName));
@@ -585,9 +587,14 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
             if (!selectText.isEmpty())
                 selectText.append(", ");
             selectText.append(recordsPhrase(t));
+            selectedFields.append(t->fields());
         }
     } else {
         selectText = createFieldPhrase(fields);
+        foreach (const PhraseData *d, fields.data) {
+            FieldModel * f=_database->model().tableByClassName(d->className)->field(d->fieldName);
+            selectedFields.append(f);
+        }
     }
 
     QStringList joinedOrders;
@@ -603,9 +610,9 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
     if (orderText != "")
         sql.append(" ORDER BY " + orderText);
 
-//    for (int i = 0; i < _database->model().count(); i++)
-//        sql = sql.replace(_database->model().at(i)->className() + ".",
-//                          _database->model().at(i)->name() + ".");
+    //    for (int i = 0; i < _database->model().count(); i++)
+    //        sql = sql.replace(_database->model().at(i)->className() + ".",
+    //                          _database->model().at(i)->name() + ".");
 
     appendSkipTake(sql, skip, take);
     replaceTableNames(sql);
@@ -704,7 +711,7 @@ QString SqlGeneratorBase::insertCommand(const QString &tableName, const Assignme
         values.append(escapeValue(d->operand));
     }
     return QString("INSERT INTO %1 (%2) VALUES (%3);")
-              .arg(tableName, fieldNames, values);
+            .arg(tableName, fieldNames, values);
 }
 
 //QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
@@ -869,8 +876,8 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
 
     QString serialized = _serializer->serialize(v);
     if (serialized.isEmpty()) {
-         qWarning("No field escape rule for: %s", v.typeName());
-         return QString();
+        qWarning("No field escape rule for: %s", v.typeName());
+        return QString();
     }
 
     if (v.type() == QVariant::List)
@@ -880,7 +887,7 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
 }
 
 QVariant SqlGeneratorBase::unescapeValue(const QMetaType::Type &type,
-                                     const QVariant &dbValue)
+                                         const QVariant &dbValue)
 {
     return _serializer->deserialize(dbValue.toString(), type);
 }
@@ -896,12 +903,12 @@ QString SqlGeneratorBase::phrase(const PhraseData *d) const
 
     case PhraseData::WithVariant:
         ret = phrase(d->left) + " " + operatorString(d->operatorCond) + " "
-              + escapeValue(d->operand);
+                + escapeValue(d->operand);
         break;
 
     case PhraseData::WithOther:
         ret = phrase(d->left) + " " + operatorString(d->operatorCond) + " "
-              + phrase(d->right);
+                + phrase(d->right);
         break;
 
     case PhraseData::WithoutOperand:
@@ -962,11 +969,11 @@ SqlGeneratorBase::operatorString(const PhraseData::Condition &cond) const
     case PhraseData::Divide:
         return "/";
 
-//    case PhraseData::Set:
-//        return "=";
+        //    case PhraseData::Set:
+        //        return "=";
 
-//    case PhraseData::Append:
-//        return ",";
+        //    case PhraseData::Append:
+        //        return ",";
 
     case PhraseData::Between:
         return "BETWEEN";
@@ -1012,7 +1019,7 @@ QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
         break;
 
     case PhraseData::WithVariant:
-       /* if (op == PhraseData::AddYears)
+        /* if (op == PhraseData::AddYears)
             ret = QString("DATEADD(year, %1, %2)")
                     .arg(d->operand.toString(), createConditionalPhrase(d->left));
         else if (op == PhraseData::AddMonths)
@@ -1055,12 +1062,12 @@ QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
                     .arg(d->operand.toString());
         else
             ret = createConditionalPhrase(d->left) + " " + operatorString(op) + " "
-              + escapeValue(d->operand);
+                    + escapeValue(d->operand);
         break;
 
     case PhraseData::WithOther:
         ret = createConditionalPhrase(d->left) + " " + operatorString(op) + " "
-              + createConditionalPhrase(d->right);
+                + createConditionalPhrase(d->right);
         break;
 
     case PhraseData::WithoutOperand:
@@ -1114,8 +1121,8 @@ void SqlGeneratorBase::createInsertPhrase(const AssignmentPhraseList &ph, QStrin
         case PhraseData::WithVariant:
             fields.append(d->left->toString());
             values.append(escapeValue(d->operand));
-//            ret = createConditionalPhrase(d->left->toString()) + " " + operatorString(d->operatorCond) + " "
-//                  + escapeValue(d->operand);
+            //            ret = createConditionalPhrase(d->left->toString()) + " " + operatorString(d->operatorCond) + " "
+            //                  + escapeValue(d->operand);
             break;
 
         case PhraseData::WithOther:

@@ -34,7 +34,7 @@ class Database;
 class TableSetBase;
 class Table;
 class TableModel;
-
+class FieldModel;
 class NUT_EXPORT SqlModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -60,11 +60,18 @@ public:
 
     void setRenderer(const std::function<QVariant (int, QVariant)> &renderer);
 
+    QList<FieldModel *> & selectedFields() {
+        return m_selectedFields;
+    }
+    QList<FieldModel *>  selectedFields() const {
+        return m_selectedFields;
+    }
 private:
     QExplicitlySharedDataPointer<SqlModelPrivate> d;
 protected:
     std::function<QVariant (int, QVariant)>  renderer() const ;
 
+     QList<FieldModel *> m_selectedFields ;
 signals:
     void beforeShowText(int col, QVariant &value);
 };
