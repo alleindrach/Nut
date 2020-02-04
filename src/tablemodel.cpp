@@ -231,8 +231,9 @@ TableModel::TableModel(int typeId, const QString &tableName)
 
         if(type == __nut_FIELD){
 
+        }else if(type==__nut_TABLE_INFO){
+            this->setInfo(value);
         }
-
 
         FieldModel *f = field(name);
         if (!f)
@@ -300,12 +301,10 @@ TableModel::TableModel(int typeId, const QString &tableName)
                 _libraryRefs.append(libmodelRef);
             }
             f->libref=libRef;
-        }else if(type==__nut_LIBREF_TABLE_NAME)
-        {
+        }else if(type==__nut_LIBREF_TABLE_NAME){
             if(f->libref->libraryTableName().isEmpty())
                 f->libref->setLibraryTableName(value);
-        }else if(type==__nut_LIBREF_TABLE_FIELD_NAME)
-        {
+        }else if(type==__nut_LIBREF_TABLE_FIELD_NAME){
             LibraryModel * ref=f->libref;
             QStringList list=ref->refColumns();
             list.append(value);
@@ -318,13 +317,13 @@ TableModel::TableModel(int typeId, const QString &tableName)
             list=ref->localProperties();
             list.append(f->name);
             ref->setLocalProperties(list);
-        }
-        else if(type == __nut_LIBREF_KEY){
+        }else if(type == __nut_LIBREF_KEY){
             QJsonObject jso=QJsonObject(QJsonValue(value).toObject());
             LibraryModel* libmodelRef=new LibraryModel(jso);
             this->_libraryRefs.append(libmodelRef);
+        }else if(type == __nut_FIELD_INFO){
+            f->info=value;
         }
-
     }
 }
 
@@ -616,4 +615,13 @@ Catalog * TableModel::searchCatlog(QString  name){
     return cat;
 }
 
+QString TableModel::info()
+{
+    return _info;
+}
+
+void TableModel::setInfo(QString v)
+{
+    _info=v;
+}
 NUT_END_NAMESPACE

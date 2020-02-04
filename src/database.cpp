@@ -279,6 +279,13 @@ bool DatabasePrivate::getCurrectScheema()
                 }
             }
         }
+//        if (type == __nut_TABLE_INFO) {
+//            foreach (TableModel *table, currentModel) {
+//                if(table->className()==name){
+//                    table->setInfo(value);
+//                }
+//            }
+//        }
     }
     foreach (TableModel *table, currentModel) {
         foreach (FieldModel *f, table->fields()) {

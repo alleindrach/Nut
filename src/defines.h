@@ -77,7 +77,6 @@
     { return m_##name; }                                                       \
     private:
 
-
 //Table
 #define NUT_DECLARE_FIELD(type, name, read, write)                             \
     Q_PROPERTY(type name READ read WRITE write)                                \
@@ -116,6 +115,14 @@ public:                                                                        \
     NUT_INFO(__nut_INPUT_TYPE,name,inputtype)                               \
     NUT_DISPLAY_NAME_STRING(name,display)
 
+#define NUT_DECLARE_TABLE_INFO(info) \
+    NUT_INFO_STRING(__nut_TABLE_INFO, na, info)
+
+#define NUT_DECLARE_FIELD_INFO(name,info) \
+    NUT_INFO_STRING(__nut_FIELD_INFO,name,info)                                                         \
+
+#define NUT_DECLARE_FIELD_INPUT_OPTIOS(name,options) \
+    NUT_INFO_STRING(__nut_INPUT_OPTIONS,name,info)                                                           \
 
 
 #define NUT_DECLARE_FIELD_CATALOG(catalog)            \

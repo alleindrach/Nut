@@ -100,6 +100,7 @@ struct FieldModel{
     QList<InputOption>  inputOptions;
     LibraryModel * libref=nullptr;
     QString refField;
+    QString  info;
 };
 
 struct RelationModel{
@@ -166,6 +167,8 @@ public:
     int refType() const;
     void setRefType( const int& );
     Catalog * searchCatlog(QString  name);
+    QString info();
+    void  setInfo(QString info);
 private:
     QString _name;
     QString _className;
@@ -175,6 +178,7 @@ private:
     QList<LibraryModel*> _libraryRefs;
     int _refType;
     QList<Catalog*> _catlogs;
+    QString _info;
 
 };
 

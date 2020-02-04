@@ -35,6 +35,7 @@
 #define __nut_UNIQUE            "unique"
 #define __nut_TABLE             "table"
 #define __nut_TABLE_NAME        "table_name"
+#define __nut_TABLE_INFO        "table_info"
 
 #define __nut_DISPLAY           "display"
 #define __nut_LEN               "len"
@@ -54,7 +55,7 @@
 #define __nut_LIBREF_TABLE_FIELD_NAME "ref_table_field_name"
 #define __nut_LIBREF_CATALOG       "ref_catalog"
 #define __nut_LIBREF_CATALOG_INDEX "ref_catalog_index"
-
+#define __nut_FIELD_INFO        "field_info"
 #define __nut_CAL_EXPRESSION    "cal_expression"
 #define __nut_INPUT_TYPE        "input_type"
 #define __nut_DATE_SPAN_INDEX   "input_date_span_index"
