@@ -24,6 +24,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonDocument>
 
 #include "tablemodel.h"
 #include "defines.h"
@@ -267,8 +268,8 @@ TableModel::TableModel(int typeId, const QString &tableName)
                 _catlogs.append(cat);
             }
             cat->fields.append(f);
-        }else if(type == __nut_CAL_EXPRESSION){
-            f->calExpress=value;
+        }else if(type == __nut_FIELD_SCRIPT){
+            f->script=value;
         }else if(type == __nut_INPUT_TYPE){
             QMetaEnum metaEnum = QMetaEnum::fromType<Table::INPUT_TYPE>();
             f->inputType=metaEnum.keyToValue(value.toLatin1().data());
@@ -276,10 +277,18 @@ TableModel::TableModel(int typeId, const QString &tableName)
             f->inputDateSpanIndex=value.toInt();
         }else if(type == __nut_DATE_SPAN_POS){
             f->inputDateSpanPos=value.toInt();
+        }else if(type == __nut_INPUT_RANGE_MAX){
+            f->inputRangeMax=value.toDouble();
+        }else if(type == __nut_INPUT_RANGE_MIN){
+            f->inputRangeMin=value.toDouble();
+        }else if(type == __nut_INPUT_DECIMALS){
+            f->decimals=value.toInt();
         }else if(type == __nut_INPUT_OPTIONS){
             // [{"display":"a","value":1},{"display":"b","value":2}]
-            QJsonValue json=QJsonValue(value);
-            QJsonArray jsonInputOptions=json.toArray();
+            QJsonParseError json_error;
+            QJsonDocument json=QJsonDocument::fromJson(value.toUtf8(),&json_error) ;
+            qDebug()<<"is array:"<<json.isArray();
+            QJsonArray jsonInputOptions=json.array();
             foreach(QVariant var, jsonInputOptions.toVariantList()){
                 QJsonObject opt=var.toJsonObject();
                 QString k=opt.take("display").toString();
@@ -533,11 +542,10 @@ FieldModel::FieldModel(const QJsonObject &json)
     isUnique = json.value(__nut_UNIQUE).toBool();
     catalog=json.value(__nut_CATALOG).toString();
 
-    calExpress=json.value(__nut_CAL_EXPRESSION).toString();
+    script=json.value(__nut_FIELD_SCRIPT).toString();
     inputType=json.value(__nut_INPUT_TYPE).toInt();
     inputDateSpanIndex=json.value(__nut_DATE_SPAN_INDEX).toInt();
     inputDateSpanPos=json.value(__nut_DATE_SPAN_POS).toInt();
-    calExpress=json.value(__nut_CAL_EXPRESSION).toString();
     QJsonArray jsoArray=json.value(__nut_INPUT_OPTIONS).toArray();
     foreach(QVariant v,jsoArray.toVariantList()){
         QJsonObject jio=(QJsonValue::fromVariant(v)).toObject();
@@ -558,7 +566,7 @@ QJsonObject FieldModel::toJson() const
     fieldObj.insert(__nut_DEFAULT_VALUE, defaultValue);
 
     fieldObj.insert(__nut_CATALOG,catalog);
-    fieldObj.insert(__nut_CAL_EXPRESSION,calExpress);
+    fieldObj.insert(__nut_FIELD_SCRIPT,script);
     fieldObj.insert(__nut_INPUT_TYPE,inputType);
     fieldObj.insert(__nut_DATE_SPAN_INDEX,this->inputDateSpanIndex);
     fieldObj.insert(__nut_DATE_SPAN_INDEX,this->inputDateSpanPos);

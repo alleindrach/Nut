@@ -26,6 +26,8 @@
 #include "defines.h"
 #include "QJsonObject"
 #include "librarymodel.h"
+
+#include <limits>
 class QJsonObject;
 
 NUT_BEGIN_NAMESPACE
@@ -92,10 +94,14 @@ struct FieldModel{
 //alleindrach
     QString catalog;
     int catIndex=0;
-    QString calExpress;
+    QString script;
     int inputType=0;
     int inputDateSpanIndex=0;
     int inputDateSpanPos=0;
+
+    double inputRangeMax=std::numeric_limits<double>::max();
+    double inputRangeMin=std::numeric_limits<double>::min();
+    int decimals=0;
     int reftype=0;//only one
     QList<InputOption>  inputOptions;
     LibraryModel * libref=nullptr;

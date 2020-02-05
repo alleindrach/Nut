@@ -24,7 +24,7 @@
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
 #include <QtCore/QSet>
-
+#include <QScriptValue>
 #include "tablemodel.h"
 #include "defines.h"
 #include "phrase.h"
@@ -72,9 +72,10 @@ public:
 
     TableModel * model() const;
 
-    enum INPUT_TYPE {NONE,TEXT,BOOLEAN,NUMBER,FLOAT,OPTIONS,DATE,TIME,DATETIME,DATE_SPAN,DATE_TIME_SPAN,TIME_SPAN,LIBRARY};
+    enum INPUT_TYPE {NONE,TEXT,BOOLEAN,NUMBER,FLOAT,OPTIONS,DATE,TIME,DATETIME,DATE_SPAN,DATE_TIME_SPAN,TIME_SPAN,LIBRARY,SCRIPT};
     Q_ENUM(INPUT_TYPE)
 
+    QVariant evaluate(QString fieldname, QList<FieldModel*>selectedFields=QList<FieldModel*>()) const;
 
 signals:
 

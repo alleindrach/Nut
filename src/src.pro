@@ -1,4 +1,4 @@
-QT       += sql gui
+QT       += sql gui script
 
 TARGET = nut
 TEMPLATE = lib

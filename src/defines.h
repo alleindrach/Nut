@@ -111,9 +111,17 @@ public:                                                                        \
 #define NUT_DECLARE_FIELD_INFO(name,info) \
     NUT_INFO_STRING(__nut_FIELD_INFO,name,info)                                                         \
 
-#define NUT_DECLARE_FIELD_INPUT_OPTIOS(name,options) \
-    NUT_INFO_STRING(__nut_INPUT_OPTIONS,name,info)                                                           \
+#define NUT_DECLARE_FIELD_INPUT_OPTIONS(name,options) \
+    NUT_INFO_STRING(__nut_INPUT_OPTIONS,name,options)                                                           \
 
+#define NUT_DECLARE_FIELD_INPUT_RANGE(name,min,max,dec) \
+    NUT_INFO(__nut_INPUT_RANGE_MIN,name,min)                                                           \
+    NUT_INFO(__nut_INPUT_RANGE_MAX,name,max)                                                           \
+    NUT_INFO(__nut_INPUT_DECIMALS,name,dec)
+
+
+#define NUT_DECLARE_FIELD_SCRIPT(name,express) \
+    NUT_INFO_STRING(__nut_FIELD_SCRIPT,name,express)
 
 #define NUT_DECLARE_FIELD_CATALOG(catalog)            \
     NUT_INFO(__nut_CATALOG,catalog,0)

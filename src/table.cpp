@@ -21,7 +21,8 @@
 #include <QMetaMethod>
 #include <QVariant>
 #include <QSqlQuery>
-
+#include <QScriptEngine>
+#include <QUuid>
 #include "table.h"
 #include "table_p.h"
 #include "database.h"
@@ -112,6 +113,78 @@ void Table::setModel(TableModel *model)
 
 TableModel * Table::model()  const{
     return d->model;
+}
+
+QVariant Table::evaluate(QString fieldname,QList<FieldModel *> selectedFields) const
+{
+    if(selectedFields.isEmpty())
+    {
+        selectedFields.append(d->model->fields());
+    }
+    QScriptEngine engine;
+    const FieldModel * field =model()->field(fieldname);
+    foreach(Nut::FieldModel * field, selectedFields){
+        QVariant v = this->property(field->name.toLocal8Bit().data());
+        qDebug()<<fieldname<<", Name:"<<field->name<<",Table:"<<field->tableClassName<<",Type:"<<v.type();
+        if(v.type()==QVariant::Int||v.type()==QMetaType::Short){
+            engine.globalObject().setProperty(field->name,v.toInt());
+            engine.globalObject().setProperty(QString("%1_%2").arg(field->tableClassName).arg(field->name),v.toInt());
+        }
+        if(v.type()==QVariant::Bool)
+        {
+            engine.globalObject().setProperty(field->name,v.toBool());
+            engine.globalObject().setProperty(QString("%1_%2").arg(field->tableClassName).arg(field->name),v.toBool());
+        }
+        if(v.type()==QVariant::Date)
+        {
+            engine.globalObject().setProperty(field->name,v.toDate().toString());
+            engine.globalObject().setProperty(QString("%1_%2").arg(field->tableClassName).arg(field->name),v.toDate().toString());
+        }
+        if(v.type()==QVariant::DateTime)
+        {
+            engine.globalObject().setProperty(field->name,v.toDateTime().toString());
+            engine.globalObject().setProperty(QString("%1_%2").arg(field->tableClassName).arg(field->name),v.toDateTime().toString());
+        }
+        if(v.type()==QVariant::Time)
+        {
+            engine.globalObject().setProperty(field->name,v.toTime().toString());
+            engine.globalObject().setProperty(QString("%1_%2").arg(field->tableClassName).arg(field->name),v.toTime().toString());
+        }
+        if(v.type()==QVariant::Char||v.type()==QVariant::String)
+        {
+            engine.globalObject().setProperty(field->name,v.toString());
+            engine.globalObject().setProperty(QString("%1_%2").arg(field->tableClassName).arg(field->name),v.toString());
+        }
+        if(v.type()==QVariant::UInt||v.type()==QMetaType::ULong)
+        {
+            engine.globalObject().setProperty(field->name,v.toUInt());
+            engine.globalObject().setProperty(QString("%1_%2").arg(field->tableClassName).arg(field->name),v.toUInt());
+        }
+        if(v.type()==QVariant::Uuid)
+        {
+            engine.globalObject().setProperty(field->name,v.toUuid().toString(QUuid::WithoutBraces));
+            engine.globalObject().setProperty(QString("%1_%2").arg(field->tableClassName).arg(field->name),v.toUuid().toString(QUuid::WithoutBraces));
+        }
+        if( v.type()==QMetaType::Float||v.type()==QVariant::Double||v.type()==QVariant::LongLong||v.type()==QVariant::ULongLong)
+        {
+            engine.globalObject().setProperty(field->name,v.toDouble());
+            engine.globalObject().setProperty(QString("%1_%2").arg(field->tableClassName).arg(field->name),v.toDouble());
+        }
+    }
+    QScriptValue v= engine.evaluate(field->script);
+
+    if(v.isBool())
+        return v.toBool();
+    else if(v.isDate())
+        return v.toDateTime();
+    else if(v.isNull())
+        return QVariant();
+    else if(v.isError()||v.isString())
+        return v.toString();
+    else if(v.isNumber())
+        return v.toNumber();
+
+    return v.toString();
 }
 
 void Table::clear()
