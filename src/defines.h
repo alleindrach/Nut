@@ -99,16 +99,6 @@ public:                                                                        \
     }
 #define NUT_DECLARE_TABLE_NAME(name)
 
-//#define NUT_DECLARE_TABLE_NAME(name)                             \
-//    Q_PROPERTY(QString tablename READ tablename )                                \
-//                                                         \
-//private:\
-//    QString m_tablename=#name;\
-//public:                                                                        \
-//    QString  tablename(){             \
-//        return m_tablename;                                                              \
-//    }                                                                          \
-
 #define NUT_DECLARE_FIELD_EX(type, name, read, write,display,cat,inputtype)            \
     NUT_DECLARE_FIELD(type, name, read, write)                                 \
     NUT_INFO_STRING(__nut_CATALOG,name,cat)                                                \

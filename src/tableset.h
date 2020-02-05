@@ -61,7 +61,7 @@ public:
     Row<T> at(int i) const;
     const Row<T> operator[](int i) const;
 
-    Query<T> *query(QString tableName=QString::null, bool autoDelete = true);
+    Query<T> *query(QString tableName=QString(), bool autoDelete = true);
     BulkInserter *bulkInserter();
 };
 

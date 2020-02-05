@@ -57,7 +57,7 @@ template <class T>
     bool m_autoDelete;
 
 public:
-    explicit Query(Database *database, TableSetBase *tableSet, bool autoDelete,QString tablename=QString::null);
+    explicit Query(Database *database, TableSetBase *tableSet, bool autoDelete,QString tablename=QString());
     ~Query();
 
     //ddl
@@ -153,7 +153,7 @@ Q_OUTOFLINE_TEMPLATE Query<T>::Query(Database *database, TableSetBase *tableSet,
 
     d->database = database;
     d->tableSet = tableSet;
-    if(tablename!=QString::null){
+    if(!tablename.isNull()){
         QString classname=tableSet->metaObject()->className();
         //        d->className=classname;
         d->tableName=tablename;
@@ -183,7 +183,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList( int count )
 template <class T>
 Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList( QList<FieldModel*>& fields,int count )
 {
-    Q_UNUSED(count);
+    Q_UNUSED(count)
     Q_D(Query);
     RowList<T> returnList;
     d->select = "*";
@@ -657,7 +657,7 @@ Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(QSqlQueryModel *model)
 template<class T>
 Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(SqlModel *model)
 {
-    Q_D(Query);
+//    Q_D(Query);
 
 //    d->sql = d->database->sqlGenertor()->selectCommand(
 //                d->tableName,

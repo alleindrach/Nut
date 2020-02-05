@@ -31,7 +31,7 @@ class QJsonObject;
 NUT_BEGIN_NAMESPACE
 
 class TableModel;
-class FieldModel;
+struct FieldModel;
 struct Catalog{
     QString displayName;
     QList<FieldModel*> fields;

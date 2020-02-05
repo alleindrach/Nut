@@ -34,7 +34,7 @@ class Database;
 class TableSetBase;
 class Table;
 class TableModel;
-class FieldModel;
+struct FieldModel;
 class NUT_EXPORT SqlModel : public QAbstractTableModel
 {
     Q_OBJECT
